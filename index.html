@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alex Rivera — Developer & Designer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['Archivo', 'sans-serif'],
+            sans: ['Space Grotesk', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background-color: #FAFAFA; color: #09090B; font-family: 'Space Grotesk', sans-serif; }
+
+    /* Entrance animations */
+    [data-animate] {
+      opacity: 0;
+      transform: translateY(2rem);
+      transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+    }
+    [data-animate].visible { opacity: 1; transform: translateY(0); }
+    [data-animate-delay="1"] { transition-delay: 0.1s; }
+    [data-animate-delay="2"] { transition-delay: 0.2s; }
+    [data-animate-delay="3"] { transition-delay: 0.3s; }
+    [data-animate-delay="4"] { transition-delay: 0.4s; }
+    [data-animate-delay="5"] { transition-delay: 0.5s; }
+    @media (prefers-reduced-motion: reduce) {
+      [data-animate] { opacity: 1; transform: none; transition: none; }
+    }
+
+    /* Nav active state */
+    nav a.active { color: #2563EB; }
+
+    /* Gradient text */
+    .gradient-text {
+      background: linear-gradient(135deg, #09090B 0%, #3F3F46 50%, #2563EB 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Project card hover */
+    .project-card:hover .card-overlay { opacity: 1; }
+    .card-overlay { transition: opacity 0.3s ease; }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      animation: bounce 2s infinite;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .scroll-indicator { animation: none; }
+    }
+
+    /* Mobile menu */
+    #mobile-menu { transition: opacity 0.2s ease, transform 0.2s ease; }
+    #mobile-menu.hidden { opacity: 0; pointer-events: none; transform: translateY(-8px); }
+    #mobile-menu.open { opacity: 1; pointer-events: all; transform: translateY(0); display: block; }
+    /* ── Active nav pill ─────────────────────────── */
+    .nav-links a {
+      padding: .375rem .75rem;
+      border-radius: .75rem;
+      font-size: .875rem;
+      font-weight: 500;
+      color: #71717A;
+      transition: background .15s ease, color .15s ease;
+      white-space: nowrap;
+    }
+    .nav-links a:hover { background: #F4F4F5; color: #09090B; }
+    .nav-links a.nav-active {
+      background: #18181B;
+      color: #fff;
+      font-weight: 600;
+    }
+    /* Mobile active pill */
+    .mobile-nav-active {
+      background: #18181B !important;
+      color: #fff !important;
+    }
+  </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+
+  <!-- ===== NAV ===== -->
+  <nav class="fixed top-4 left-4 right-4 z-50 flex items-center justify-between px-5 py-3 bg-white/80 backdrop-blur-md border border-zinc-200 rounded-2xl shadow-sm">
+    <a href="index.html" class="font-heading font-bold text-zinc-950 text-lg tracking-tight">AR</a>
+    <div class="hidden md:flex items-center gap-1 nav-links">
+      <a href="index.html" class="nav-active">Home</a>
+      <a href="projects.html" class="">Work</a>
+      <a href="about.html" class="">About</a>
+      <a href="blog.html" class="">Blog</a>
+      <a href="books.html" class="">Books</a>
+      <a href="contact.html" class="">Contact</a>
+    </div>
+    <a href="contact.html" class="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-zinc-950 text-white text-sm font-medium rounded-xl hover:bg-zinc-800 transition-colors cursor-pointer">
+      Hire Me
+    </a>
+    <button id="menu-btn" aria-label="Open menu" class="md:hidden flex flex-col gap-1.5 p-2 cursor-pointer">
+      <span class="w-5 h-0.5 bg-zinc-950 block transition-all" id="bar1"></span>
+      <span class="w-5 h-0.5 bg-zinc-950 block transition-all" id="bar2"></span>
+      <span class="w-4 h-0.5 bg-zinc-950 block transition-all" id="bar3"></span>
+    </button>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden fixed top-[76px] left-4 right-4 z-40 bg-white border border-zinc-200 rounded-2xl shadow-lg p-4">
+    <div class="flex flex-col gap-1">
+      <a href="index.html" class="px-4 py-3 text-sm font-medium rounded-xl mobile-nav-active">Home</a>
+      <a href="projects.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Work</a>
+      <a href="about.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">About</a>
+      <a href="blog.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Blog</a>
+      <a href="books.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Books</a>
+      <a href="contact.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Contact</a>
+      <a href="contact.html" class="mt-2 px-4 py-3 text-sm font-medium text-white bg-zinc-950 rounded-xl text-center">Hire Me</a>
+    </div>
+  </div>
+
+  <main>
+    <!-- ===== HERO ===== -->
+    <section class="min-h-screen flex flex-col justify-center pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div class="max-w-5xl">
+        <div data-animate class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-full text-blue-700 text-xs font-medium mb-8">
+          <span class="w-1.5 h-1.5 bg-blue-500 rounded-full inline-block"></span>
+          Available for new projects
+        </div>
+
+        <h1 data-animate data-animate-delay="1" class="font-heading font-black text-zinc-950 text-5xl sm:text-7xl lg:text-8xl leading-[0.95] tracking-tight mb-6">
+          Hi, I'm<br />
+          <span class="gradient-text">Alex Rivera</span>
+        </h1>
+
+        <p data-animate data-animate-delay="2" class="text-zinc-500 text-lg sm:text-xl max-w-xl leading-relaxed mb-10">
+          Full Stack Developer &amp; UI Designer crafting digital experiences that are fast, beautiful, and built to last.
+        </p>
+
+        <div data-animate data-animate-delay="3" class="flex flex-wrap items-center gap-4">
+          <a href="projects.html" class="inline-flex items-center gap-2 px-6 py-3.5 bg-zinc-950 text-white font-medium rounded-xl hover:bg-zinc-800 transition-colors cursor-pointer">
+            View My Work
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
+          <a href="contact.html" class="inline-flex items-center gap-2 px-6 py-3.5 bg-white border border-zinc-200 text-zinc-700 font-medium rounded-xl hover:border-zinc-400 transition-colors cursor-pointer">
+            Get In Touch
+          </a>
+        </div>
+
+        <div data-animate data-animate-delay="4" class="flex items-center gap-6 mt-14 pt-14 border-t border-zinc-200">
+          <div class="text-center">
+            <p class="font-heading font-bold text-zinc-950 text-2xl">5+</p>
+            <p class="text-zinc-500 text-sm mt-0.5">Years Exp.</p>
+          </div>
+          <div class="w-px h-10 bg-zinc-200"></div>
+          <div class="text-center">
+            <p class="font-heading font-bold text-zinc-950 text-2xl">40+</p>
+            <p class="text-zinc-500 text-sm mt-0.5">Projects</p>
+          </div>
+          <div class="w-px h-10 bg-zinc-200"></div>
+          <div class="text-center">
+            <p class="font-heading font-bold text-zinc-950 text-2xl">25+</p>
+            <p class="text-zinc-500 text-sm mt-0.5">Clients</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="absolute bottom-10 left-1/2 -translate-x-1/2 hidden lg:flex flex-col items-center gap-2 text-zinc-400 text-xs scroll-indicator">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        <span>Scroll</span>
+      </div>
+    </section>
+
+    <!-- ===== FEATURED WORK ===== -->
+    <section class="px-4 sm:px-6 lg:px-8 py-24 max-w-7xl mx-auto">
+      <div data-animate class="flex items-end justify-between mb-12">
+        <div>
+          <p class="text-blue-600 text-sm font-medium mb-2">Selected Work</p>
+          <h2 class="font-heading font-bold text-zinc-950 text-4xl sm:text-5xl tracking-tight">Projects I'm<br />proud of</h2>
+        </div>
+        <a href="projects.html" class="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-950 transition-colors cursor-pointer">
+          View all
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+        <!-- Card 1 -->
+        <div data-animate data-animate-delay="1" class="project-card group relative bg-white border border-zinc-200 rounded-2xl overflow-hidden hover:shadow-lg hover:border-zinc-300 transition-all duration-300 cursor-pointer">
+          <div class="h-48 bg-gradient-to-br from-blue-600 to-indigo-800 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 30% 40%, white 0%, transparent 60%)"></div>
+            <div class="absolute bottom-4 left-4">
+              <span class="px-2.5 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-medium rounded-lg">Web App</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="font-heading font-semibold text-zinc-950 text-lg mb-2">E-Commerce Platform</h3>
+            <p class="text-zinc-500 text-sm leading-relaxed mb-4">Full-stack marketplace with real-time inventory, payment processing, and admin dashboard.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">React</span>
+              <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">Node.js</span>
+              <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">PostgreSQL</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div data-animate data-animate-delay="2" class="project-card group relative bg-white border border-zinc-200 rounded-2xl overflow-hidden hover:shadow-lg hover:border-zinc-300 transition-all duration-300 cursor-pointer">
+          <div class="h-48 bg-gradient-to-br from-violet-600 to-purple-800 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 70% 30%, white 0%, transparent 60%)"></div>
+            <div class="absolute bottom-4 left-4">
+              <span class="px-2.5 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-medium rounded-lg">Mobile</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="font-heading font-semibold text-zinc-950 text-lg mb-2">Mobile Banking App</h3>
+            <p class="text-zinc-500 text-sm leading-relaxed mb-4">Secure, intuitive banking interface with biometric auth, transfers, and spending analytics.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">React Native</span>
+              <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">TypeScript</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div data-animate data-animate-delay="3" class="project-card group relative bg-white border border-zinc-200 rounded-2xl overflow-hidden hover:shadow-lg hover:border-zinc-300 transition-all duration-300 cursor-pointer md:col-span-2 lg:col-span-1">
+          <div class="h-48 bg-gradient-to-br from-emerald-500 to-teal-700 relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 50% 60%, white 0%, transparent 60%)"></div>
+            <div class="absolute bottom-4 left-4">
+              <span class="px-2.5 py-1 bg-white/20 backdrop-blur-sm text-white text-xs font-medium rounded-lg">Design</span>
+            </div>
+          </div>
+          <div class="p-5">
+            <h3 class="font-heading font-semibold text-zinc-950 text-lg mb-2">Design System</h3>
+            <p class="text-zinc-500 text-sm leading-relaxed mb-4">Comprehensive component library and design tokens system used by 3 product teams.</p>
+            <div class="flex flex-wrap gap-2">
+              <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">Figma</span>
+              <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">Storybook</span>
+              <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">CSS</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-8 text-center sm:hidden">
+        <a href="projects.html" class="inline-flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-950 transition-colors cursor-pointer">
+          View all projects
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      </div>
+    </section>
+
+    <!-- ===== ABOUT TEASER ===== -->
+    <section class="px-4 sm:px-6 lg:px-8 py-24 bg-zinc-950 max-w-full">
+      <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <p data-animate class="text-blue-400 text-sm font-medium mb-3">About Me</p>
+            <h2 data-animate data-animate-delay="1" class="font-heading font-bold text-white text-4xl sm:text-5xl tracking-tight leading-tight mb-6">
+              Code meets<br />creativity
+            </h2>
+            <p data-animate data-animate-delay="2" class="text-zinc-400 text-lg leading-relaxed mb-8">
+              I'm a developer and designer with a passion for building products that look great and work even better. I bridge the gap between design vision and technical execution.
+            </p>
+            <a data-animate data-animate-delay="3" href="about.html" class="inline-flex items-center gap-2 px-5 py-3 bg-white text-zinc-950 font-medium rounded-xl hover:bg-zinc-100 transition-colors cursor-pointer text-sm">
+              More about me
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </a>
+          </div>
+          <div data-animate data-animate-delay="2" class="grid grid-cols-2 gap-4">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
+              <p class="text-zinc-400 text-xs mb-3 font-medium uppercase tracking-widest">Frontend</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-2.5 py-1 bg-zinc-800 text-zinc-300 text-xs rounded-lg">React</span>
+                <span class="px-2.5 py-1 bg-zinc-800 text-zinc-300 text-xs rounded-lg">Vue</span>
+                <span class="px-2.5 py-1 bg-zinc-800 text-zinc-300 text-xs rounded-lg">TypeScript</span>
+                <span class="px-2.5 py-1 bg-zinc-800 text-zinc-300 text-xs rounded-lg">Tailwind</span>
+              </div>
+            </div>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
+              <p class="text-zinc-400 text-xs mb-3 font-medium uppercase tracking-widest">Backend</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-2.5 py-1 bg-zinc-800 text-zinc-300 text-xs rounded-lg">Node.js</span>
+                <span class="px-2.5 py-1 bg-zinc-800 text-zinc-300 text-xs rounded-lg">Python</span>
+                <span class="px-2.5 py-1 bg-zinc-800 text-zinc-300 text-xs rounded-lg">PostgreSQL</span>
+              </div>
+            </div>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
+              <p class="text-zinc-400 text-xs mb-3 font-medium uppercase tracking-widest">Design</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-2.5 py-1 bg-zinc-800 text-zinc-300 text-xs rounded-lg">Figma</span>
+                <span class="px-2.5 py-1 bg-zinc-800 text-zinc-300 text-xs rounded-lg">Framer</span>
+                <span class="px-2.5 py-1 bg-zinc-800 text-zinc-300 text-xs rounded-lg">Motion</span>
+              </div>
+            </div>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
+              <p class="text-zinc-400 text-xs mb-3 font-medium uppercase tracking-widest">DevOps</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-2.5 py-1 bg-zinc-800 text-zinc-300 text-xs rounded-lg">Docker</span>
+                <span class="px-2.5 py-1 bg-zinc-800 text-zinc-300 text-xs rounded-lg">AWS</span>
+                <span class="px-2.5 py-1 bg-zinc-800 text-zinc-300 text-xs rounded-lg">CI/CD</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CTA SECTION ===== -->
+    <section class="px-4 sm:px-6 lg:px-8 py-32 max-w-7xl mx-auto text-center">
+      <div data-animate>
+        <p class="text-blue-600 text-sm font-medium mb-4">Let's collaborate</p>
+        <h2 class="font-heading font-bold text-zinc-950 text-4xl sm:text-6xl tracking-tight leading-tight mb-6">
+          Have a project<br />in mind?
+        </h2>
+        <p class="text-zinc-500 text-lg max-w-md mx-auto mb-10 leading-relaxed">
+          I'm currently available for freelance work and full-time positions. Let's build something great together.
+        </p>
+        <a href="contact.html" class="inline-flex items-center gap-2 px-7 py-4 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors cursor-pointer">
+          Start a Conversation
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="border-t border-zinc-200 px-4 sm:px-6 lg:px-8 py-10">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+      <p class="font-heading font-bold text-zinc-950 text-lg tracking-tight">Alex Rivera</p>
+      <div class="flex items-center gap-6 text-sm text-zinc-500">
+        <a href="index.html" class="">Home</a>
+        <a href="projects.html" class="">Work</a>
+        <a href="about.html" class="">About</a>
+        <a href="blog.html" class="">Blog</a>
+        <a href="books.html" class="">Books</a>
+        <a href="contact.html" class="">Contact</a>
+      </div>
+      <div class="flex items-center gap-4">
+        <!-- GitHub -->
+        <a href="#" aria-label="GitHub" class="text-zinc-400 hover:text-zinc-950 transition-colors cursor-pointer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        </a>
+        <!-- LinkedIn -->
+        <a href="#" aria-label="LinkedIn" class="text-zinc-400 hover:text-zinc-950 transition-colors cursor-pointer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+        <!-- Twitter/X -->
+        <a href="#" aria-label="Twitter" class="text-zinc-400 hover:text-zinc-950 transition-colors cursor-pointer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+      </div>
+    </div>
+    <p class="text-center text-zinc-400 text-sm mt-8">© 2024 Alex Rivera. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Intersection Observer for entrance animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+
+    // Trigger hero elements immediately
+    document.querySelectorAll('section:first-of-type [data-animate]').forEach(el => {
+      setTimeout(() => el.classList.add('visible'), 100);
+    });
+
+    // Mobile menu
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const bar1 = document.getElementById('bar1');
+    const bar3 = document.getElementById('bar3');
+    let menuOpen = false;
+    menuBtn.addEventListener('click', () => {
+      menuOpen = !menuOpen;
+      if (menuOpen) {
+        mobileMenu.classList.remove('hidden');
+        mobileMenu.classList.add('open');
+        bar1.style.transform = 'rotate(45deg) translate(4px, 4px)';
+        bar3.style.transform = 'rotate(-45deg) translate(4px, -4px)';
+      } else {
+        mobileMenu.classList.remove('open');
+        mobileMenu.classList.add('hidden');
+        bar1.style.transform = '';
+        bar3.style.transform = '';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Books — Alex Rivera</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { heading: ['Archivo','sans-serif'], sans: ['Space Grotesk','sans-serif'] } } }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background-color: #FAFAFA; color: #09090B; font-family: 'Space Grotesk', sans-serif; }
+
+    [data-animate] { opacity:0; transform:translateY(1.5rem); transition: opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1); }
+    [data-animate].visible { opacity:1; transform:translateY(0); }
+    [data-animate-delay="1"] { transition-delay:.08s; }
+    [data-animate-delay="2"] { transition-delay:.16s; }
+    [data-animate-delay="3"] { transition-delay:.24s; }
+    [data-animate-delay="4"] { transition-delay:.32s; }
+    @media (prefers-reduced-motion:reduce) { [data-animate] { opacity:1; transform:none; transition:none; } }
+
+    /* Mobile menu */
+    #mobile-menu { transition: opacity .2s ease, transform .2s ease; }
+    #mobile-menu.hidden { opacity:0; pointer-events:none; transform:translateY(-8px); }
+    #mobile-menu.open { opacity:1; pointer-events:all; transform:translateY(0); display:block; }
+
+    /* Tag pills */
+    .tag { display:inline-flex; align-items:center; padding:.25rem .75rem; border-radius:9999px; font-size:.75rem; font-weight:500; border:1px solid; cursor:pointer; transition: all .15s ease; white-space:nowrap; }
+    .tag:hover { opacity:.75; }
+
+    /* Filter buttons */
+    .filter-btn { transition: all .2s ease; }
+    .filter-btn.active { background:#09090B; color:#fff; border-color:#09090B; }
+
+    /* Book card */
+    .book-card { transition: transform .25s ease, box-shadow .25s ease, border-color .2s ease; }
+    .book-card:hover { transform:translateY(-3px); box-shadow:0 12px 28px -8px rgba(0,0,0,.1); border-color:#D4D4D8; }
+
+    /* Star rating */
+    .stars { display:inline-flex; gap:1px; }
+
+    /* Status badge */
+    .status-reading  { background:#EFF6FF; color:#1D4ED8; border-color:#BFDBFE; }
+    .status-finished { background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
+    .status-next     { background:#FFF7ED; color:#C2410C; border-color:#FED7AA; }
+
+    /* Tag color palette — 10 distinct hues */
+    .tag-engineering  { background:#EFF6FF; color:#1E40AF; border-color:#BFDBFE; }
+    .tag-cybersecurity{ background:#FFF7ED; color:#9A3412; border-color:#FED7AA; }
+    .tag-management   { background:#FDF4FF; color:#7E22CE; border-color:#E9D5FF; }
+    .tag-psychology   { background:#FFF1F2; color:#BE123C; border-color:#FECDD3; }
+    .tag-science      { background:#F0FDF4; color:#166534; border-color:#BBF7D0; }
+    .tag-design       { background:#FEF3C7; color:#92400E; border-color:#FDE68A; }
+    .tag-biography    { background:#F0F9FF; color:#075985; border-color:#BAE6FD; }
+    .tag-philosophy   { background:#F9FAFB; color:#374151; border-color:#D1D5DB; }
+    .tag-business     { background:#F0FDF4; color:#065F46; border-color:#A7F3D0; }
+    .tag-petroleum    { background:#ECFDF5; color:#047857; border-color:#6EE7B7; }
+    .tag-fiction      { background:#FDF2F8; color:#9D174D; border-color:#FBCFE8; }
+    .tag-productivity { background:#FAFAF9; color:#44403C; border-color:#D6D3D1; }
+
+    /* Progress bar */
+    .progress-bar { height:3px; background:#E4E4E7; border-radius:9999px; overflow:hidden; }
+    .progress-fill { height:100%; background:#2563EB; border-radius:9999px; transition:width 1s cubic-bezier(.16,1,.3,1); }
+    .progress-fill.animated { width:var(--progress); }
+    @media (prefers-reduced-motion:reduce) { .progress-fill { width:var(--progress); transition:none; } }
+    /* ── Active nav pill ─────────────────────────── */
+    .nav-links a {
+      padding: .375rem .75rem;
+      border-radius: .75rem;
+      font-size: .875rem;
+      font-weight: 500;
+      color: #71717A;
+      transition: background .15s ease, color .15s ease;
+      white-space: nowrap;
+    }
+    .nav-links a:hover { background: #F4F4F5; color: #09090B; }
+    .nav-links a.nav-active {
+      background: #18181B;
+      color: #fff;
+      font-weight: 600;
+    }
+    /* Mobile active pill */
+    .mobile-nav-active {
+      background: #18181B !important;
+      color: #fff !important;
+    }
+  </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+
+  <!-- NAV -->
+  <nav class="fixed top-4 left-4 right-4 z-50 flex items-center justify-between px-5 py-3 bg-white/80 backdrop-blur-md border border-zinc-200 rounded-2xl shadow-sm">
+    <a href="index.html" class="font-heading font-bold text-zinc-950 text-lg tracking-tight">AR</a>
+    <div class="hidden md:flex items-center gap-1 nav-links">
+      <a href="index.html" class="">Home</a>
+      <a href="projects.html" class="">Work</a>
+      <a href="about.html" class="">About</a>
+      <a href="blog.html" class="">Blog</a>
+      <a href="books.html" class="nav-active">Books</a>
+      <a href="contact.html" class="">Contact</a>
+    </div>
+    <a href="contact.html" class="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-zinc-950 text-white text-sm font-medium rounded-xl hover:bg-zinc-800 transition-colors cursor-pointer">Hire Me</a>
+    <button id="menu-btn" aria-label="Open menu" class="md:hidden flex flex-col gap-1.5 p-2 cursor-pointer">
+      <span class="w-5 h-0.5 bg-zinc-950 block transition-all" id="bar1"></span>
+      <span class="w-5 h-0.5 bg-zinc-950 block transition-all"></span>
+      <span class="w-4 h-0.5 bg-zinc-950 block transition-all" id="bar3"></span>
+    </button>
+  </nav>
+
+  <div id="mobile-menu" class="hidden fixed top-[76px] left-4 right-4 z-40 bg-white border border-zinc-200 rounded-2xl shadow-lg p-4">
+    <div class="flex flex-col gap-1">
+      <a href="index.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Home</a>
+      <a href="projects.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Work</a>
+      <a href="about.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">About</a>
+      <a href="blog.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Blog</a>
+      <a href="books.html" class="px-4 py-3 text-sm font-medium rounded-xl mobile-nav-active">Books</a>
+      <a href="contact.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Contact</a>
+      <a href="contact.html" class="mt-2 px-4 py-3 text-sm font-medium text-white bg-zinc-950 rounded-xl text-center">Hire Me</a>
+    </div>
+  </div>
+
+  <main>
+
+    <!-- HEADER -->
+    <section class="pt-32 pb-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <p data-animate class="text-blue-600 text-sm font-medium mb-3">Reading List</p>
+      <h1 data-animate data-animate-delay="1" class="font-heading font-black text-zinc-950 text-5xl sm:text-7xl tracking-tight leading-[0.95] mb-5">Books</h1>
+      <p data-animate data-animate-delay="2" class="text-zinc-500 text-lg max-w-xl leading-relaxed">
+        Every book I've read, am reading, or plan to read — tagged by topic, rated honestly.
+      </p>
+
+      <!-- Stats row -->
+      <div data-animate data-animate-delay="3" class="flex flex-wrap items-center gap-6 mt-10 pt-10 border-t border-zinc-200">
+        <div>
+          <p class="font-heading font-bold text-zinc-950 text-2xl" id="stat-finished">0</p>
+          <p class="text-zinc-500 text-xs mt-0.5">Finished</p>
+        </div>
+        <div class="w-px h-8 bg-zinc-200"></div>
+        <div>
+          <p class="font-heading font-bold text-zinc-950 text-2xl" id="stat-reading">0</p>
+          <p class="text-zinc-500 text-xs mt-0.5">Reading now</p>
+        </div>
+        <div class="w-px h-8 bg-zinc-200"></div>
+        <div>
+          <p class="font-heading font-bold text-zinc-950 text-2xl" id="stat-next">0</p>
+          <p class="text-zinc-500 text-xs mt-0.5">Up next</p>
+        </div>
+        <div class="w-px h-8 bg-zinc-200"></div>
+        <div>
+          <p class="font-heading font-bold text-zinc-950 text-2xl" id="stat-total">0</p>
+          <p class="text-zinc-500 text-xs mt-0.5">Total</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FILTERS -->
+    <section class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-4">
+      <!-- Status filter -->
+      <div data-animate class="flex flex-wrap gap-2 mb-4">
+        <button class="filter-btn active px-4 py-2 text-sm font-medium border border-zinc-200 rounded-xl cursor-pointer" data-status="all">All</button>
+        <button class="filter-btn px-4 py-2 text-sm font-medium border border-zinc-200 text-zinc-600 hover:border-zinc-400 rounded-xl cursor-pointer" data-status="finished">
+          <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>Finished</span>
+        </button>
+        <button class="filter-btn px-4 py-2 text-sm font-medium border border-zinc-200 text-zinc-600 hover:border-zinc-400 rounded-xl cursor-pointer" data-status="reading">
+          <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>Reading</span>
+        </button>
+        <button class="filter-btn px-4 py-2 text-sm font-medium border border-zinc-200 text-zinc-600 hover:border-zinc-400 rounded-xl cursor-pointer" data-status="next">
+          <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-orange-400 inline-block"></span>Up Next</span>
+        </button>
+      </div>
+
+      <!-- Tag filter -->
+      <div data-animate data-animate-delay="1" id="tag-filter-row" class="flex flex-wrap gap-2">
+        <button class="tag tag-active border-zinc-900 bg-zinc-950 text-white active-tag" data-tag="all">All topics</button>
+        <!-- Tags injected by JS -->
+      </div>
+    </section>
+
+    <!-- BOOK GRID -->
+    <section class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-32 mt-10">
+      <div id="book-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <!-- Cards rendered by JS -->
+      </div>
+      <p id="empty-state" class="hidden text-center text-zinc-400 py-20 text-lg">No books match this filter.</p>
+      <p id="book-count" class="text-zinc-400 text-sm text-center mt-10"></p>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-zinc-200 px-4 sm:px-6 lg:px-8 py-10">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+      <p class="font-heading font-bold text-zinc-950 text-lg tracking-tight">Alex Rivera</p>
+      <div class="flex items-center gap-6 text-sm text-zinc-500">
+        <a href="index.html" class="">Home</a>
+        <a href="projects.html" class="">Work</a>
+        <a href="about.html" class="">About</a>
+        <a href="blog.html" class="">Blog</a>
+        <a href="books.html" class="">Books</a>
+        <a href="contact.html" class="">Contact</a>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="#" aria-label="GitHub" class="text-zinc-400 hover:text-zinc-950 transition-colors cursor-pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg></a>
+        <a href="#" aria-label="LinkedIn" class="text-zinc-400 hover:text-zinc-950 transition-colors cursor-pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        <a href="#" aria-label="Twitter" class="text-zinc-400 hover:text-zinc-950 transition-colors cursor-pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+      </div>
+    </div>
+    <p class="text-center text-zinc-400 text-sm mt-8">© 2024 Alex Rivera. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // ── Book data ─────────────────────────────────────────────────────────────
+    const BOOKS = [
+      // ── Reading now ──
+      {
+        title: "The Pragmatic Programmer",
+        author: "David Thomas & Andrew Hunt",
+        year: 2019,
+        status: "reading",
+        progress: 62,
+        rating: null,
+        tags: ["engineering", "productivity"],
+        note: "A timeless read. The DRY principle section alone is worth the cover price.",
+        color: "from-blue-500 to-indigo-600"
+      },
+      {
+        title: "Fundamentals of Reservoir Engineering",
+        author: "L.P. Dake",
+        year: 1978,
+        status: "reading",
+        progress: 38,
+        rating: null,
+        tags: ["petroleum", "engineering", "science"],
+        note: "Dense but essential. Dake's treatment of material balance equations is unmatched.",
+        color: "from-emerald-500 to-teal-600"
+      },
+
+      // ── Finished ──
+      {
+        title: "Clean Code",
+        author: "Robert C. Martin",
+        year: 2008,
+        status: "finished",
+        progress: 100,
+        rating: 5,
+        tags: ["engineering", "productivity"],
+        note: "Changed how I write and review code. Required reading for any developer.",
+        color: "from-zinc-700 to-zinc-900"
+      },
+      {
+        title: "The Web Application Hacker's Handbook",
+        author: "Stuttard & Pinto",
+        year: 2011,
+        status: "finished",
+        progress: 100,
+        rating: 5,
+        tags: ["cybersecurity", "engineering"],
+        note: "The bible for web security. Every chapter reveals a new attack surface.",
+        color: "from-orange-500 to-red-600"
+      },
+      {
+        title: "Thinking, Fast and Slow",
+        author: "Daniel Kahneman",
+        year: 2011,
+        status: "finished",
+        progress: 100,
+        rating: 5,
+        tags: ["psychology", "science"],
+        note: "Kahneman dismantles the myth of rational decision-making. Profoundly humbling.",
+        color: "from-violet-500 to-purple-700"
+      },
+      {
+        title: "Designing Data-Intensive Applications",
+        author: "Martin Kleppmann",
+        year: 2017,
+        status: "finished",
+        progress: 100,
+        rating: 5,
+        tags: ["engineering", "science"],
+        note: "Best distributed systems book I've read. Kleppmann explains concepts I'd misunderstood for years.",
+        color: "from-blue-600 to-cyan-600"
+      },
+      {
+        title: "The Design of Everyday Things",
+        author: "Don Norman",
+        year: 2013,
+        status: "finished",
+        progress: 100,
+        rating: 4,
+        tags: ["design", "psychology"],
+        note: "Made me notice bad design everywhere I look. A prerequisite for UI/UX work.",
+        color: "from-amber-500 to-orange-500"
+      },
+      {
+        title: "Zero to One",
+        author: "Peter Thiel",
+        year: 2014,
+        status: "finished",
+        progress: 100,
+        rating: 4,
+        tags: ["business", "management"],
+        note: "Contrarian and sharp. Some ideas are provocative, but the core thesis is compelling.",
+        color: "from-zinc-800 to-zinc-950"
+      },
+      {
+        title: "Hacking: The Art of Exploitation",
+        author: "Jon Erickson",
+        year: 2008,
+        status: "finished",
+        progress: 100,
+        rating: 5,
+        tags: ["cybersecurity", "engineering"],
+        note: "Teaches security from the ground up — shellcode, buffer overflows, cryptography. No shortcuts.",
+        color: "from-red-600 to-rose-800"
+      },
+      {
+        title: "High Output Management",
+        author: "Andrew S. Grove",
+        year: 1983,
+        status: "finished",
+        progress: 100,
+        rating: 5,
+        tags: ["management", "business"],
+        note: "Written by Intel's CEO, it holds up perfectly. The meeting taxonomy alone changed how I run standups.",
+        color: "from-blue-700 to-indigo-800"
+      },
+      {
+        title: "Meditations",
+        author: "Marcus Aurelius",
+        year: 180,
+        status: "finished",
+        progress: 100,
+        rating: 5,
+        tags: ["philosophy"],
+        note: "A private journal that became timeless. I re-read a passage most mornings.",
+        color: "from-stone-600 to-stone-800"
+      },
+      {
+        title: "Steve Jobs",
+        author: "Walter Isaacson",
+        year: 2011,
+        status: "finished",
+        progress: 100,
+        rating: 4,
+        tags: ["biography", "design", "business"],
+        note: "Exhaustive and honest. Jobs was brilliant and ruthless in equal measure.",
+        color: "from-slate-500 to-slate-700"
+      },
+      {
+        title: "The Phoenix Project",
+        author: "Gene Kim, Kevin Behr & George Spafford",
+        year: 2013,
+        status: "finished",
+        progress: 100,
+        rating: 4,
+        tags: ["engineering", "management", "fiction"],
+        note: "DevOps principles wrapped in a novel. The 'Three Ways' framework clicked immediately.",
+        color: "from-cyan-600 to-blue-700"
+      },
+      {
+        title: "Petroleum Engineering: Principles and Practice",
+        author: "John R. Fanchi",
+        year: 2006,
+        status: "finished",
+        progress: 100,
+        rating: 4,
+        tags: ["petroleum", "engineering"],
+        note: "A solid survey of all sub-disciplines. Best used as a reference alongside more specialised texts.",
+        color: "from-emerald-600 to-green-800"
+      },
+      {
+        title: "Atomic Habits",
+        author: "James Clear",
+        year: 2018,
+        status: "finished",
+        progress: 100,
+        rating: 4,
+        tags: ["psychology", "productivity"],
+        note: "Practical above all else. The 1% better compounding framework is something I still use.",
+        color: "from-yellow-500 to-orange-500"
+      },
+      {
+        title: "A Brief History of Time",
+        author: "Stephen Hawking",
+        year: 1988,
+        status: "finished",
+        progress: 100,
+        rating: 5,
+        tags: ["science", "philosophy"],
+        note: "Hawking's gift for analogy makes the incomprehensible feel briefly within reach.",
+        color: "from-indigo-600 to-violet-700"
+      },
+      {
+        title: "Cybersecurity and Cyberwar",
+        author: "P.W. Singer & Allan Friedman",
+        year: 2014,
+        status: "finished",
+        progress: 100,
+        rating: 4,
+        tags: ["cybersecurity"],
+        note: "Accessible and policy-aware. Good for understanding how nation-state actors approach offensive ops.",
+        color: "from-orange-600 to-red-700"
+      },
+      {
+        title: "Deep Work",
+        author: "Cal Newport",
+        year: 2016,
+        status: "finished",
+        progress: 100,
+        rating: 4,
+        tags: ["productivity", "philosophy"],
+        note: "The argument for focused work is obvious but the tactics are genuinely useful.",
+        color: "from-zinc-600 to-zinc-800"
+      },
+
+      // ── Up Next ──
+      {
+        title: "Software Engineering at Google",
+        author: "Titus Winters et al.",
+        year: 2020,
+        status: "next",
+        progress: 0,
+        rating: null,
+        tags: ["engineering", "management"],
+        note: "",
+        color: "from-blue-400 to-blue-600"
+      },
+      {
+        title: "The Art of War",
+        author: "Sun Tzu",
+        year: -500,
+        status: "next",
+        progress: 0,
+        rating: null,
+        tags: ["philosophy", "management"],
+        note: "",
+        color: "from-stone-400 to-stone-600"
+      },
+      {
+        title: "Enhanced Oil Recovery",
+        author: "Don W. Green & G. Paul Willhite",
+        year: 1998,
+        status: "next",
+        progress: 0,
+        rating: null,
+        tags: ["petroleum", "engineering", "science"],
+        note: "",
+        color: "from-teal-500 to-emerald-700"
+      },
+      {
+        title: "The Art of Invisibility",
+        author: "Kevin Mitnick",
+        year: 2017,
+        status: "next",
+        progress: 0,
+        rating: null,
+        tags: ["cybersecurity"],
+        note: "",
+        color: "from-red-500 to-orange-600"
+      },
+      {
+        title: "Sapiens",
+        author: "Yuval Noah Harari",
+        year: 2011,
+        status: "next",
+        progress: 0,
+        rating: null,
+        tags: ["science", "philosophy"],
+        note: "",
+        color: "from-amber-400 to-yellow-600"
+      },
+    ];
+
+    // ── Tag metadata ──────────────────────────────────────────────────────────
+    const TAG_META = {
+      engineering:   { label: "Engineering",    cls: "tag-engineering" },
+      cybersecurity: { label: "Cybersecurity",  cls: "tag-cybersecurity" },
+      management:    { label: "Management",     cls: "tag-management" },
+      psychology:    { label: "Psychology",     cls: "tag-psychology" },
+      science:       { label: "Science",        cls: "tag-science" },
+      design:        { label: "Design",         cls: "tag-design" },
+      biography:     { label: "Biography",      cls: "tag-biography" },
+      philosophy:    { label: "Philosophy",     cls: "tag-philosophy" },
+      business:      { label: "Business",       cls: "tag-business" },
+      petroleum:     { label: "Petroleum",      cls: "tag-petroleum" },
+      fiction:       { label: "Fiction",        cls: "tag-fiction" },
+      productivity:  { label: "Productivity",   cls: "tag-productivity" },
+    };
+
+    const STATUS_META = {
+      reading:  { label: "Reading",  cls: "status-reading" },
+      finished: { label: "Finished", cls: "status-finished" },
+      next:     { label: "Up Next",  cls: "status-next" },
+    };
+
+    function stars(n) {
+      if (!n) return '';
+      return Array.from({length:5}, (_,i) =>
+        `<svg width="12" height="12" viewBox="0 0 24 24" fill="${i<n?'#F59E0B':'#E4E4E7'}" xmlns="http://www.w3.org/2000/svg"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
+      ).join('');
+    }
+
+    function renderCard(book) {
+      const sm = STATUS_META[book.status];
+      const tagPills = book.tags.map(t => {
+        const m = TAG_META[t] || { label: t, cls: 'tag-philosophy' };
+        return `<span class="tag ${m.cls}">${m.label}</span>`;
+      }).join('');
+
+      const progressBar = book.status === 'reading'
+        ? `<div class="progress-bar mt-4"><div class="progress-fill" style="--progress:${book.progress}%"></div></div>
+           <p class="text-zinc-400 text-xs mt-1">${book.progress}% complete</p>`
+        : '';
+
+      const ratingHtml = book.rating
+        ? `<div class="stars mt-2">${stars(book.rating)}</div>`
+        : '';
+
+      const noteHtml = book.note
+        ? `<p class="text-zinc-400 text-xs leading-relaxed mt-3 italic">"${book.note}"</p>`
+        : '';
+
+      return `
+        <div class="book-card bg-white border border-zinc-200 rounded-2xl overflow-hidden flex flex-col"
+             data-status="${book.status}"
+             data-tags="${book.tags.join(',')}">
+          <!-- Colour stripe -->
+          <div class="h-1.5 bg-gradient-to-r ${book.color}"></div>
+          <div class="p-5 flex flex-col flex-1">
+            <!-- Status + rating row -->
+            <div class="flex items-start justify-between gap-2 mb-3">
+              <span class="${sm.cls} border text-xs font-medium px-2 py-0.5 rounded-lg flex-shrink-0">${sm.label}</span>
+              ${ratingHtml}
+            </div>
+            <!-- Title & author -->
+            <h2 class="font-heading font-bold text-zinc-950 text-base leading-snug mb-1">${book.title}</h2>
+            <p class="text-zinc-400 text-xs mb-3">${book.author} · ${book.year > 0 ? book.year : Math.abs(book.year) + ' BC'}</p>
+            <!-- Tags -->
+            <div class="flex flex-wrap gap-1.5 mt-auto">${tagPills}</div>
+            ${progressBar}
+            ${noteHtml}
+          </div>
+        </div>`;
+    }
+
+    // ── State ──────────────────────────────────────────────────────────────────
+    let activeStatus = 'all';
+    let activeTag    = 'all';
+
+    function getVisible() {
+      return BOOKS.filter(b => {
+        const statusOk = activeStatus === 'all' || b.status === activeStatus;
+        const tagOk    = activeTag    === 'all' || b.tags.includes(activeTag);
+        return statusOk && tagOk;
+      });
+    }
+
+    function render() {
+      const visible = getVisible();
+      const grid = document.getElementById('book-grid');
+      const empty = document.getElementById('empty-state');
+      const count = document.getElementById('book-count');
+
+      grid.innerHTML = visible.map(renderCard).join('');
+      empty.classList.toggle('hidden', visible.length > 0);
+
+      // Animate progress bars
+      requestAnimationFrame(() => {
+        grid.querySelectorAll('.progress-fill').forEach(el => el.classList.add('animated'));
+      });
+
+      const total = BOOKS.length;
+      count.textContent = visible.length === total
+        ? `Showing all ${total} books`
+        : `Showing ${visible.length} of ${total} books`;
+    }
+
+    // ── Build tag filter row ───────────────────────────────────────────────────
+    function buildTagFilters() {
+      const usedTags = [...new Set(BOOKS.flatMap(b => b.tags))].sort();
+      const row = document.getElementById('tag-filter-row');
+      usedTags.forEach(t => {
+        const m = TAG_META[t] || { label: t, cls: 'tag-philosophy' };
+        const btn = document.createElement('button');
+        btn.className = `tag ${m.cls}`;
+        btn.dataset.tag = t;
+        btn.textContent = m.label;
+        btn.addEventListener('click', () => {
+          activeTag = t;
+          row.querySelectorAll('button').forEach(b => b.classList.remove('active-tag','bg-zinc-950','text-white','border-zinc-900'));
+          btn.classList.add('active-tag','bg-zinc-950','text-white','border-zinc-900');
+          render();
+        });
+        row.appendChild(btn);
+      });
+
+      // "All topics" button already in HTML
+      row.querySelector('[data-tag="all"]').addEventListener('click', function() {
+        activeTag = 'all';
+        row.querySelectorAll('button').forEach(b => b.classList.remove('active-tag','bg-zinc-950','text-white','border-zinc-900'));
+        this.classList.add('active-tag','bg-zinc-950','text-white','border-zinc-900');
+        render();
+      });
+    }
+
+    // ── Status filter buttons ─────────────────────────────────────────────────
+    document.querySelectorAll('.filter-btn[data-status]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeStatus = btn.dataset.status;
+        document.querySelectorAll('.filter-btn[data-status]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        render();
+      });
+    });
+
+    // ── Stats ─────────────────────────────────────────────────────────────────
+    function animateCount(el, target, duration = 600) {
+      let start = null;
+      function step(ts) {
+        if (!start) start = ts;
+        const progress = Math.min((ts - start) / duration, 1);
+        el.textContent = Math.round(progress * target);
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    function updateStats() {
+      const finished = BOOKS.filter(b => b.status === 'finished').length;
+      const reading  = BOOKS.filter(b => b.status === 'reading').length;
+      const next     = BOOKS.filter(b => b.status === 'next').length;
+      animateCount(document.getElementById('stat-finished'), finished);
+      animateCount(document.getElementById('stat-reading'),  reading);
+      animateCount(document.getElementById('stat-next'),     next);
+      animateCount(document.getElementById('stat-total'),    BOOKS.length);
+    }
+
+    // ── Entrance animations ───────────────────────────────────────────────────
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('[data-animate]').forEach(el => obs.observe(el));
+    setTimeout(() => document.querySelectorAll('[data-animate]').forEach(el => el.classList.add('visible')), 100);
+
+    // ── Mobile menu ───────────────────────────────────────────────────────────
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const bar1 = document.getElementById('bar1');
+    const bar3 = document.getElementById('bar3');
+    let menuOpen = false;
+    menuBtn.addEventListener('click', () => {
+      menuOpen = !menuOpen;
+      if (menuOpen) {
+        mobileMenu.classList.remove('hidden'); mobileMenu.classList.add('open');
+        bar1.style.transform = 'rotate(45deg) translate(4px,4px)';
+        bar3.style.transform = 'rotate(-45deg) translate(4px,-4px)';
+      } else {
+        mobileMenu.classList.remove('open'); mobileMenu.classList.add('hidden');
+        bar1.style.transform = ''; bar3.style.transform = '';
+      }
+    });
+
+    // ── Init ──────────────────────────────────────────────────────────────────
+    buildTagFilters();
+    render();
+    setTimeout(updateStats, 300);
+  </script>
+</body>
+</html>

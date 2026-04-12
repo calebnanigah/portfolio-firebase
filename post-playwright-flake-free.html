@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Writing Flake-Free E2E Tests: Lessons from 50,000 Playwright Runs — Alex Rivera</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { heading: ['Archivo','sans-serif'], sans: ['Space Grotesk','sans-serif'] } } }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background-color: #FAFAFA; color: #09090B; font-family: 'Space Grotesk', sans-serif; }
+    [data-animate] { opacity:0; transform:translateY(2rem); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+    [data-animate].visible { opacity:1; transform:translateY(0); }
+    @media (prefers-reduced-motion:reduce) { [data-animate] { opacity:1; transform:none; transition:none; } }
+    #mobile-menu { transition: opacity .2s ease, transform .2s ease; }
+    #mobile-menu.hidden { opacity:0; pointer-events:none; transform:translateY(-8px); }
+    #mobile-menu.open { opacity:1; pointer-events:all; transform:translateY(0); display:block; }
+    .prose h2 { font-family:'Archivo',sans-serif; font-weight:700; font-size:1.375rem; color:#09090B; margin:2.5rem 0 .75rem; line-height:1.3; }
+    .prose h3 { font-family:'Archivo',sans-serif; font-weight:600; font-size:1.125rem; color:#18181B; margin:2rem 0 .5rem; }
+    .prose p { color:#3F3F46; line-height:1.8; margin:0 0 1.25rem; font-size:1rem; }
+    .prose ul,.prose ol { color:#3F3F46; line-height:1.8; margin:0 0 1.25rem; padding-left:1.5rem; }
+    .prose li { margin-bottom:.4rem; }
+    .prose pre { background:#18181B; color:#E4E4E7; padding:1.25rem 1.5rem; border-radius:.75rem; overflow-x:auto; margin:1.75rem 0; font-size:.8125rem; line-height:1.75; font-family:ui-monospace,monospace; }
+    .prose code:not(pre code) { background:#F4F4F5; color:#0F172A; padding:.15rem .4rem; border-radius:.375rem; font-size:.875em; font-family:ui-monospace,monospace; }
+    .prose blockquote { border-left:3px solid #2563EB; padding-left:1.25rem; margin:1.75rem 0; color:#52525B; font-style:italic; font-size:1.0625rem; }
+    .prose strong { color:#09090B; font-weight:600; }
+    .prose a { color:#2563EB; text-decoration:underline; }
+    .prose hr { border:none; border-top:1px solid #E4E4E7; margin:2.5rem 0; }
+    .callout { border-radius:.75rem; padding:1rem 1.25rem; margin:1.75rem 0; font-size:.9375rem; }
+    .callout-info { background:#EFF6FF; border:1px solid #BFDBFE; color:#1E40AF; }
+    .callout-warn { background:#FFF7ED; border:1px solid #FED7AA; color:#9A3412; }
+    .callout-good { background:#F0FDF4; border:1px solid #BBF7D0; color:#166534; }
+    /* ── Active nav pill ─────────────────────────── */
+    .nav-links a {
+      padding: .375rem .75rem;
+      border-radius: .75rem;
+      font-size: .875rem;
+      font-weight: 500;
+      color: #71717A;
+      transition: background .15s ease, color .15s ease;
+      white-space: nowrap;
+    }
+    .nav-links a:hover { background: #F4F4F5; color: #09090B; }
+    .nav-links a.nav-active {
+      background: #18181B;
+      color: #fff;
+      font-weight: 600;
+    }
+    /* Mobile active pill */
+    .mobile-nav-active {
+      background: #18181B !important;
+      color: #fff !important;
+    }
+  </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+
+  <nav class="fixed top-4 left-4 right-4 z-50 flex items-center justify-between px-5 py-3 bg-white/80 backdrop-blur-md border border-zinc-200 rounded-2xl shadow-sm">
+    <a href="index.html" class="font-heading font-bold text-zinc-950 text-lg tracking-tight">AR</a>
+    <div class="hidden md:flex items-center gap-1 nav-links">
+      <a href="index.html" class="">Home</a>
+      <a href="projects.html" class="">Work</a>
+      <a href="about.html" class="">About</a>
+      <a href="blog.html" class="nav-active">Blog</a>
+      <a href="books.html" class="">Books</a>
+      <a href="contact.html" class="">Contact</a>
+    </div>
+    <a href="contact.html" class="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-zinc-950 text-white text-sm font-medium rounded-xl hover:bg-zinc-800 transition-colors cursor-pointer">Hire Me</a>
+    <button id="menu-btn" aria-label="Open menu" class="md:hidden flex flex-col gap-1.5 p-2 cursor-pointer">
+      <span class="w-5 h-0.5 bg-zinc-950 block transition-all" id="bar1"></span>
+      <span class="w-5 h-0.5 bg-zinc-950 block transition-all"></span>
+      <span class="w-4 h-0.5 bg-zinc-950 block transition-all" id="bar3"></span>
+    </button>
+  </nav>
+  <div id="mobile-menu" class="hidden fixed top-[76px] left-4 right-4 z-40 bg-white border border-zinc-200 rounded-2xl shadow-lg p-4">
+    <div class="flex flex-col gap-1">
+      <a href="index.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Home</a>
+      <a href="projects.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Work</a>
+      <a href="about.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">About</a>
+      <a href="blog.html" class="px-4 py-3 text-sm font-medium rounded-xl mobile-nav-active">Blog</a>
+      <a href="books.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Books</a>
+      <a href="contact.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Contact</a>
+      <a href="contact.html" class="mt-2 px-4 py-3 text-sm font-medium text-white bg-zinc-950 rounded-xl text-center">Hire Me</a>
+    </div>
+  </div>
+
+  <main class="pt-28 pb-24">
+    <div class="px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+
+      <a href="blog.html" data-animate class="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-950 transition-colors mb-10 cursor-pointer">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        Back to Blog
+      </a>
+
+      <header data-animate>
+        <div class="flex items-center gap-3 mb-4">
+          <span class="bg-blue-50 text-blue-700 border-blue-200 text-xs font-semibold px-2.5 py-1 rounded-lg border">QA Testing</span>
+          <span class="text-zinc-400 text-sm">Feb 19, 2024</span>
+        </div>
+        <h1 class="font-heading font-black text-zinc-950 text-3xl sm:text-4xl leading-tight tracking-tight mb-5">Writing Flake-Free E2E Tests: Lessons from 50,000 Playwright Runs</h1>
+        <p class="text-zinc-500 text-lg leading-relaxed mb-6">Flaky tests erode trust faster than no tests. After running Playwright at scale, here are the patterns that eliminate 95% of non-deterministic failures.</p>
+        <div class="flex items-center gap-3 pb-8 border-b border-zinc-200">
+          <div class="w-9 h-9 bg-gradient-to-br from-blue-600 to-violet-700 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">AR</div>
+          <div>
+            <p class="text-zinc-950 text-sm font-medium">Alex Rivera</p>
+            <div class="flex items-center gap-2 text-zinc-400 text-xs">
+              <span>Feb 19, 2024</span>
+              <span class="w-1 h-1 bg-zinc-300 rounded-full inline-block"></span>
+              <span>7 min read</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <article class="prose mt-8">
+
+        <p>A flaky test is worse than no test. It trains developers to ignore failures, undermines confidence in the entire suite, and wastes hours investigating non-issues. After analysing failure patterns across tens of thousands of Playwright runs, a handful of root causes account for the overwhelming majority of flakiness. Most of them are entirely preventable.</p>
+
+        <h2>The Anatomy of a Flaky Test</h2>
+        <p>Flakiness is almost always a timing or isolation problem. Either the test is interacting with the application before it's ready, or the state left by one test is leaking into another. The solution to both is precision — tell Playwright exactly what to wait for, and ensure each test starts from a known clean state.</p>
+
+        <blockquote>If you've ever written <code>await page.waitForTimeout(2000)</code>, that's a flakiness time-bomb. Fixed delays are guesses dressed as code.</blockquote>
+
+        <h2>Rule 1: Never Use Fixed Timeouts</h2>
+        <p>Fixed delays (<code>waitForTimeout</code>) are the single biggest source of flakiness. They're too short on a slow CI machine and wastefully long on fast hardware. Replace every fixed delay with an actionable wait.</p>
+
+        <pre><code>// Bad — arbitrary sleep
+await page.waitForTimeout(2000);
+await page.click('#submit-btn');
+
+// Good — wait for the element to be ready
+await page.waitForSelector('#submit-btn', { state: 'visible' });
+await page.click('#submit-btn');
+
+// Better — Playwright's locators auto-wait
+await page.getByRole('button', { name: 'Submit' }).click();</code></pre>
+
+        <p>Playwright's locator API automatically waits for elements to be actionable before interacting with them. Use locators everywhere.</p>
+
+        <h2>Rule 2: Wait for Network and Application State</h2>
+        <p>Clicking a button that triggers an API call and then immediately asserting on the result is a race condition. Wait for the network response, or better yet, wait for the UI change that proves the data loaded.</p>
+
+        <pre><code>// Wait for a specific API response
+const responsePromise = page.waitForResponse(
+  resp => resp.url().includes('/api/orders') && resp.status() === 200
+);
+await page.getByRole('button', { name: 'Load Orders' }).click();
+await responsePromise;
+
+// Then assert on the rendered result
+await expect(page.getByTestId('order-list')).toBeVisible();
+await expect(page.getByTestId('order-item')).toHaveCount(5);</code></pre>
+
+        <h2>Rule 3: Isolate Test State</h2>
+        <p>Tests that share state are tests waiting to fail. Each test should set up its own data and clean up after itself, or run in a completely isolated environment (separate database, separate browser context).</p>
+
+        <pre><code>// playwright.config.ts — use browser contexts for isolation
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  use: {
+    // Each test gets a fresh browser context
+    contextOptions: { storageState: undefined },
+  },
+});
+
+// In test file — create fresh data per test
+test.beforeEach(async ({ request }) => {
+  // Seed test data via API rather than through the UI
+  await request.post('/api/test/seed', {
+    data: { user: { email: `test-${Date.now()}@example.com` } }
+  });
+});</code></pre>
+
+        <h2>Rule 4: Use data-testid Attributes — Sparingly</h2>
+        <p>CSS selectors tied to visual styling break when the design changes. XPath is fragile. The most resilient selectors target semantic roles and <code>data-testid</code> attributes that survive refactoring.</p>
+
+        <pre><code>// Fragile — breaks on CSS class rename
+await page.click('.btn.btn-primary.submit-action');
+
+// Resilient — semantic role selector
+await page.getByRole('button', { name: 'Place Order' }).click();
+
+// Explicit test hook for complex components
+await page.getByTestId('checkout-confirm-btn').click();</code></pre>
+
+        <div class="callout callout-info">
+          <strong>Accessibility bonus:</strong> Writing role-based selectors forces you to use proper semantic HTML and ARIA labels. Your tests improve accessibility as a side effect.
+        </div>
+
+        <h2>Rule 5: Run Tests in Parallel with Shared Fixtures</h2>
+        <p>Parallelism exposes implicit state dependencies that sequential runs hide. Enable Playwright's worker-level parallelism and use fixtures to share expensive setup (like authenticated sessions) without sharing mutable state.</p>
+
+        <pre><code>// fixtures/auth.ts
+import { test as base } from '@playwright/test';
+
+export const test = base.extend&lt;{ authenticatedPage: Page }&gt;({
+  authenticatedPage: async ({ page }, use) => {
+    // Log in once per worker, share session via storage state
+    await page.goto('/login');
+    await page.fill('[name=email]', process.env.TEST_USER_EMAIL!);
+    await page.fill('[name=password]', process.env.TEST_USER_PASSWORD!);
+    await page.click('[type=submit]');
+    await page.waitForURL('/dashboard');
+    await use(page);
+  },
+});</code></pre>
+
+        <h2>Rule 6: Treat Flakes as Bugs</h2>
+        <p>When a test flakes, quarantine it immediately (mark it with <code>test.skip</code> or move to a dedicated flaky suite), investigate the root cause, and only re-enable it once fixed. Never allow <code>--retries=3</code> to become a substitute for fixing the underlying problem — retries are a reliability band-aid for infrastructure issues, not a licence to write non-deterministic tests.</p>
+
+        <div class="callout callout-warn">
+          <strong>Red flag:</strong> If you're relying on <code>retries: 3</code> for more than 2% of your test suite, you have a flakiness problem that retries are masking. Fix the tests.
+        </div>
+
+        <h2>The Flake Dashboard</h2>
+        <p>Track flakiness metrics over time. Log test names, failure messages, and timestamps. A test that fails 1 in 20 runs is costing your team far more than the time to fix it. Prioritise by frequency multiplied by disruption cost — the tests that run most often and fail most publicly are your highest-value targets.</p>
+
+        <p>Flake-free Playwright suites are achievable. The key insight is that almost all flakiness is deterministic in origin — there's a real race condition, a real state leak, a real selector that's too fragile. Fix the test, fix the root cause, and build a suite the team actually trusts.</p>
+
+      </article>
+
+      <div class="mt-10 pt-8 border-t border-zinc-200 flex flex-wrap gap-2">
+        <span class="px-3 py-1.5 bg-zinc-100 text-zinc-600 text-xs font-medium rounded-lg">Playwright</span>
+        <span class="px-3 py-1.5 bg-zinc-100 text-zinc-600 text-xs font-medium rounded-lg">E2E Testing</span>
+        <span class="px-3 py-1.5 bg-zinc-100 text-zinc-600 text-xs font-medium rounded-lg">Flaky Tests</span>
+        <span class="px-3 py-1.5 bg-zinc-100 text-zinc-600 text-xs font-medium rounded-lg">Test Automation</span>
+        <span class="px-3 py-1.5 bg-zinc-100 text-zinc-600 text-xs font-medium rounded-lg">TypeScript</span>
+      </div>
+
+    </div>
+
+    <div class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mt-20">
+      <div class="border-t border-zinc-200 pt-14">
+        <h2 class="font-heading font-bold text-zinc-950 text-2xl mb-8">More in QA Testing</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <a href="post-api-contract-testing.html" class="block bg-white border border-zinc-200 rounded-2xl p-6 hover:border-zinc-400 hover:shadow-sm transition-all cursor-pointer">
+            <div class="h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 mb-5"></div>
+            <span class="bg-blue-50 text-blue-700 border-blue-200 text-xs font-semibold px-2.5 py-1 rounded-lg border">QA Testing</span>
+            <h3 class="font-heading font-semibold text-zinc-950 text-base leading-snug mt-3 mb-2">API Contract Testing with Pact: Stop Breaking Microservices</h3>
+            <p class="text-zinc-500 text-sm">Mar 12, 2024 · 11 min read</p>
+          </a>
+          <a href="post-k6-performance-testing.html" class="block bg-white border border-zinc-200 rounded-2xl p-6 hover:border-zinc-400 hover:shadow-sm transition-all cursor-pointer">
+            <div class="h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 mb-5"></div>
+            <span class="bg-blue-50 text-blue-700 border-blue-200 text-xs font-semibold px-2.5 py-1 rounded-lg border">QA Testing</span>
+            <h3 class="font-heading font-semibold text-zinc-950 text-base leading-snug mt-3 mb-2">Performance Testing Under Load: k6 Patterns for Real-World Traffic</h3>
+            <p class="text-zinc-500 text-sm">Jan 30, 2024 · 13 min read</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-zinc-200 px-4 sm:px-6 lg:px-8 py-10">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+      <p class="font-heading font-bold text-zinc-950 text-lg tracking-tight">Alex Rivera</p>
+      <div class="flex items-center gap-6 text-sm text-zinc-500">
+        <a href="index.html" class="">Home</a>
+        <a href="projects.html" class="">Work</a>
+        <a href="about.html" class="">About</a>
+        <a href="blog.html" class="">Blog</a>
+        <a href="books.html" class="">Books</a>
+        <a href="contact.html" class="">Contact</a>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="#" aria-label="GitHub" class="text-zinc-400 hover:text-zinc-950 transition-colors cursor-pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg></a>
+        <a href="#" aria-label="LinkedIn" class="text-zinc-400 hover:text-zinc-950 transition-colors cursor-pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        <a href="#" aria-label="Twitter" class="text-zinc-400 hover:text-zinc-950 transition-colors cursor-pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+      </div>
+    </div>
+    <p class="text-center text-zinc-400 text-sm mt-8">© 2024 Alex Rivera. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const obs = new IntersectionObserver(e => e.forEach(x => { if(x.isIntersecting){x.target.classList.add('visible');obs.unobserve(x.target);} }), {threshold:.1});
+    document.querySelectorAll('[data-animate]').forEach(el => obs.observe(el));
+    setTimeout(()=>document.querySelectorAll('[data-animate]').forEach(el=>el.classList.add('visible')),100);
+    const btn=document.getElementById('menu-btn'),menu=document.getElementById('mobile-menu'),b1=document.getElementById('bar1'),b3=document.getElementById('bar3');
+    let open=false;
+    btn.addEventListener('click',()=>{open=!open;if(open){menu.classList.remove('hidden');menu.classList.add('open');b1.style.transform='rotate(45deg) translate(4px,4px)';b3.style.transform='rotate(-45deg) translate(4px,-4px)';}else{menu.classList.remove('open');menu.classList.add('hidden');b1.style.transform='';b3.style.transform='';}});
+  </script>
+</body>
+</html>

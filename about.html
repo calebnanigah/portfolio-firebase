@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — Alex Rivera</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['Archivo', 'sans-serif'],
+            sans: ['Space Grotesk', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background-color: #FAFAFA; color: #09090B; font-family: 'Space Grotesk', sans-serif; }
+
+    [data-animate] {
+      opacity: 0;
+      transform: translateY(2rem);
+      transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+    }
+    [data-animate].visible { opacity: 1; transform: translateY(0); }
+    [data-animate-delay="1"] { transition-delay: 0.1s; }
+    [data-animate-delay="2"] { transition-delay: 0.2s; }
+    [data-animate-delay="3"] { transition-delay: 0.3s; }
+    [data-animate-delay="4"] { transition-delay: 0.4s; }
+    [data-animate-delay="5"] { transition-delay: 0.5s; }
+    @media (prefers-reduced-motion: reduce) {
+      [data-animate] { opacity: 1; transform: none; transition: none; }
+    }
+
+    /* Skill bars */
+    .skill-bar { background: #E4E4E7; border-radius: 999px; height: 4px; overflow: hidden; }
+    .skill-fill {
+      height: 100%;
+      background: #2563EB;
+      border-radius: 999px;
+      width: 0;
+      transition: width 1s cubic-bezier(0.16,1,0.3,1);
+    }
+    .skill-fill.animated { width: var(--skill-width); }
+    @media (prefers-reduced-motion: reduce) {
+      .skill-fill { width: var(--skill-width); transition: none; }
+    }
+
+    /* Timeline */
+    .timeline-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 19px;
+      top: 40px;
+      bottom: -20px;
+      width: 1px;
+      background: #E4E4E7;
+    }
+
+    /* Mobile menu */
+    #mobile-menu { transition: opacity 0.2s ease, transform 0.2s ease; }
+    #mobile-menu.hidden { opacity: 0; pointer-events: none; transform: translateY(-8px); }
+    #mobile-menu.open { opacity: 1; pointer-events: all; transform: translateY(0); display: block; }
+
+    /* Avatar placeholder */
+    .avatar-bg {
+      background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+    }
+    /* ── Active nav pill ─────────────────────────── */
+    .nav-links a {
+      padding: .375rem .75rem;
+      border-radius: .75rem;
+      font-size: .875rem;
+      font-weight: 500;
+      color: #71717A;
+      transition: background .15s ease, color .15s ease;
+      white-space: nowrap;
+    }
+    .nav-links a:hover { background: #F4F4F5; color: #09090B; }
+    .nav-links a.nav-active {
+      background: #18181B;
+      color: #fff;
+      font-weight: 600;
+    }
+    /* Mobile active pill */
+    .mobile-nav-active {
+      background: #18181B !important;
+      color: #fff !important;
+    }
+  </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+
+  <!-- NAV -->
+  <nav class="fixed top-4 left-4 right-4 z-50 flex items-center justify-between px-5 py-3 bg-white/80 backdrop-blur-md border border-zinc-200 rounded-2xl shadow-sm">
+    <a href="index.html" class="font-heading font-bold text-zinc-950 text-lg tracking-tight">AR</a>
+    <div class="hidden md:flex items-center gap-1 nav-links">
+      <a href="index.html" class="">Home</a>
+      <a href="projects.html" class="">Work</a>
+      <a href="about.html" class="nav-active">About</a>
+      <a href="blog.html" class="">Blog</a>
+      <a href="books.html" class="">Books</a>
+      <a href="contact.html" class="">Contact</a>
+    </div>
+    <a href="contact.html" class="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-zinc-950 text-white text-sm font-medium rounded-xl hover:bg-zinc-800 transition-colors cursor-pointer">
+      Hire Me
+    </a>
+    <button id="menu-btn" aria-label="Open menu" class="md:hidden flex flex-col gap-1.5 p-2 cursor-pointer">
+      <span class="w-5 h-0.5 bg-zinc-950 block transition-all" id="bar1"></span>
+      <span class="w-5 h-0.5 bg-zinc-950 block transition-all" id="bar2"></span>
+      <span class="w-4 h-0.5 bg-zinc-950 block transition-all" id="bar3"></span>
+    </button>
+  </nav>
+
+  <div id="mobile-menu" class="hidden fixed top-[76px] left-4 right-4 z-40 bg-white border border-zinc-200 rounded-2xl shadow-lg p-4">
+    <div class="flex flex-col gap-1">
+      <a href="index.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Home</a>
+      <a href="projects.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Work</a>
+      <a href="about.html" class="px-4 py-3 text-sm font-medium rounded-xl mobile-nav-active">About</a>
+      <a href="blog.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Blog</a>
+      <a href="books.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Books</a>
+      <a href="contact.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Contact</a>
+      <a href="contact.html" class="mt-2 px-4 py-3 text-sm font-medium text-white bg-zinc-950 rounded-xl text-center">Hire Me</a>
+    </div>
+  </div>
+
+  <main>
+    <!-- HERO / INTRO -->
+    <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <p data-animate class="text-blue-600 text-sm font-medium mb-3">About Me</p>
+          <h1 data-animate data-animate-delay="1" class="font-heading font-black text-zinc-950 text-5xl sm:text-6xl tracking-tight leading-[0.95] mb-6">
+            Developer.<br />Designer.<br />Builder.
+          </h1>
+          <p data-animate data-animate-delay="2" class="text-zinc-500 text-lg leading-relaxed mb-6">
+            I'm Alex Rivera, a full stack developer and UI designer based in San Francisco. With 5+ years of experience, I specialize in building products that solve real problems — beautifully.
+          </p>
+          <p data-animate data-animate-delay="3" class="text-zinc-500 text-lg leading-relaxed mb-8">
+            I believe the best products come from a deep understanding of both the technical constraints and the human experience. I thrive at that intersection.
+          </p>
+          <div data-animate data-animate-delay="4" class="flex items-center gap-4">
+            <a href="contact.html" class="inline-flex items-center gap-2 px-5 py-3 bg-zinc-950 text-white font-medium rounded-xl hover:bg-zinc-800 transition-colors cursor-pointer text-sm">
+              Get In Touch
+            </a>
+            <a href="#" class="inline-flex items-center gap-2 px-5 py-3 border border-zinc-200 text-zinc-700 font-medium rounded-xl hover:border-zinc-400 transition-colors cursor-pointer text-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              Download CV
+            </a>
+          </div>
+        </div>
+        <div data-animate data-animate-delay="2" class="flex justify-center lg:justify-end">
+          <div class="relative">
+            <!-- Avatar placeholder -->
+            <div class="w-72 h-72 sm:w-80 sm:h-80 rounded-3xl avatar-bg flex items-center justify-center shadow-2xl">
+              <span class="font-heading font-black text-white text-8xl tracking-tight select-none">AR</span>
+            </div>
+            <!-- Floating badge -->
+            <div class="absolute -bottom-4 -left-4 bg-white border border-zinc-200 rounded-2xl shadow-lg px-4 py-3 flex items-center gap-3">
+              <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <div>
+                <p class="font-semibold text-zinc-950 text-sm">5+ Years</p>
+                <p class="text-zinc-500 text-xs">of experience</p>
+              </div>
+            </div>
+            <!-- Floating badge 2 -->
+            <div class="absolute -top-4 -right-4 bg-white border border-zinc-200 rounded-2xl shadow-lg px-4 py-3 flex items-center gap-3">
+              <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div>
+                <p class="font-semibold text-zinc-950 text-sm">40+ Projects</p>
+                <p class="text-zinc-500 text-xs">delivered</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section class="px-4 sm:px-6 lg:px-8 py-20 max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+        <!-- Skill bars -->
+        <div>
+          <p data-animate class="text-blue-600 text-sm font-medium mb-3">Expertise</p>
+          <h2 data-animate data-animate-delay="1" class="font-heading font-bold text-zinc-950 text-3xl sm:text-4xl tracking-tight mb-10">Skills & Tools</h2>
+          <div data-animate data-animate-delay="2" class="space-y-7" id="skill-bars">
+            <div>
+              <div class="flex justify-between mb-2">
+                <span class="text-sm font-medium text-zinc-700">React / Next.js</span>
+                <span class="text-sm text-zinc-400">95%</span>
+              </div>
+              <div class="skill-bar"><div class="skill-fill" style="--skill-width: 95%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-2">
+                <span class="text-sm font-medium text-zinc-700">TypeScript</span>
+                <span class="text-sm text-zinc-400">90%</span>
+              </div>
+              <div class="skill-bar"><div class="skill-fill" style="--skill-width: 90%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-2">
+                <span class="text-sm font-medium text-zinc-700">Node.js / Backend</span>
+                <span class="text-sm text-zinc-400">85%</span>
+              </div>
+              <div class="skill-bar"><div class="skill-fill" style="--skill-width: 85%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-2">
+                <span class="text-sm font-medium text-zinc-700">UI Design / Figma</span>
+                <span class="text-sm text-zinc-400">92%</span>
+              </div>
+              <div class="skill-bar"><div class="skill-fill" style="--skill-width: 92%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-2">
+                <span class="text-sm font-medium text-zinc-700">Mobile (React Native / Flutter)</span>
+                <span class="text-sm text-zinc-400">78%</span>
+              </div>
+              <div class="skill-bar"><div class="skill-fill" style="--skill-width: 78%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-2">
+                <span class="text-sm font-medium text-zinc-700">DevOps / Cloud (AWS)</span>
+                <span class="text-sm text-zinc-400">72%</span>
+              </div>
+              <div class="skill-bar"><div class="skill-fill" style="--skill-width: 72%"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tech stack tags -->
+        <div>
+          <p data-animate class="text-blue-600 text-sm font-medium mb-3">Stack</p>
+          <h2 data-animate data-animate-delay="1" class="font-heading font-bold text-zinc-950 text-3xl sm:text-4xl tracking-tight mb-10">What I work with</h2>
+
+          <div data-animate data-animate-delay="2" class="space-y-6">
+            <div>
+              <p class="text-xs text-zinc-400 font-medium uppercase tracking-widest mb-3">Languages</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">JavaScript</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">TypeScript</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">Python</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">SQL</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">Dart</span>
+              </div>
+            </div>
+            <div>
+              <p class="text-xs text-zinc-400 font-medium uppercase tracking-widest mb-3">Frontend</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">React</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">Next.js</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">Vue</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">Tailwind CSS</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">Framer Motion</span>
+              </div>
+            </div>
+            <div>
+              <p class="text-xs text-zinc-400 font-medium uppercase tracking-widest mb-3">Backend & DB</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">Node.js</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">Express</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">FastAPI</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">PostgreSQL</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">Redis</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">Firebase</span>
+              </div>
+            </div>
+            <div>
+              <p class="text-xs text-zinc-400 font-medium uppercase tracking-widest mb-3">Tools</p>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">Figma</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">Docker</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">AWS</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">GitHub Actions</span>
+                <span class="px-3 py-1.5 bg-white border border-zinc-200 text-zinc-700 text-sm rounded-xl">Vercel</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXPERIENCE TIMELINE -->
+    <section class="px-4 sm:px-6 lg:px-8 py-20 bg-zinc-950">
+      <div class="max-w-7xl mx-auto">
+        <p data-animate class="text-blue-400 text-sm font-medium mb-3">Career</p>
+        <h2 data-animate data-animate-delay="1" class="font-heading font-bold text-white text-3xl sm:text-5xl tracking-tight mb-16">Experience</h2>
+
+        <div class="max-w-3xl space-y-5">
+
+          <div data-animate data-animate-delay="1" class="timeline-item relative flex gap-6 pb-5">
+            <div class="flex-shrink-0 w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center mt-1">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+            </div>
+            <div class="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                <h3 class="font-heading font-semibold text-white text-lg">Senior Full Stack Developer</h3>
+                <span class="text-blue-400 text-xs font-medium px-3 py-1 bg-blue-900/30 rounded-lg w-fit">2022 – Present</span>
+              </div>
+              <p class="text-zinc-400 text-sm font-medium mb-3">TechFlow Inc. · San Francisco, CA</p>
+              <p class="text-zinc-500 text-sm leading-relaxed">Lead development of the core platform serving 100k+ users. Architected microservices infrastructure, reduced page load times by 60%, and mentored a team of 4 junior developers.</p>
+            </div>
+          </div>
+
+          <div data-animate data-animate-delay="2" class="timeline-item relative flex gap-6 pb-5">
+            <div class="flex-shrink-0 w-10 h-10 bg-violet-600 rounded-xl flex items-center justify-center mt-1">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.838a.5.5 0 0 1-.62-.62l.838-2.872a2 2 0 0 1 .506-.854z"/></svg>
+            </div>
+            <div class="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                <h3 class="font-heading font-semibold text-white text-lg">UI/UX Designer & Developer</h3>
+                <span class="text-violet-400 text-xs font-medium px-3 py-1 bg-violet-900/30 rounded-lg w-fit">2020 – 2022</span>
+              </div>
+              <p class="text-zinc-400 text-sm font-medium mb-3">Studio Digital · Remote</p>
+              <p class="text-zinc-500 text-sm leading-relaxed">Designed and built client products from concept to launch. Created a shared component library that cut design-to-dev handoff time by 40%. Worked with 15+ clients across industries.</p>
+            </div>
+          </div>
+
+          <div data-animate data-animate-delay="3" class="timeline-item relative flex gap-6 pb-5">
+            <div class="flex-shrink-0 w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center mt-1">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <div class="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                <h3 class="font-heading font-semibold text-white text-lg">Frontend Developer (Intern)</h3>
+                <span class="text-emerald-400 text-xs font-medium px-3 py-1 bg-emerald-900/30 rounded-lg w-fit">2019 – 2020</span>
+              </div>
+              <p class="text-zinc-400 text-sm font-medium mb-3">StartupLab · New York, NY</p>
+              <p class="text-zinc-500 text-sm leading-relaxed">Contributed to the React frontend of a SaaS product. Implemented responsive layouts, accessibility improvements, and collaborated closely with the design team.</p>
+            </div>
+          </div>
+
+          <div data-animate data-animate-delay="4" class="timeline-item relative flex gap-6">
+            <div class="flex-shrink-0 w-10 h-10 bg-zinc-700 rounded-xl flex items-center justify-center mt-1">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            </div>
+            <div class="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                <h3 class="font-heading font-semibold text-white text-lg">B.S. Computer Science</h3>
+                <span class="text-zinc-400 text-xs font-medium px-3 py-1 bg-zinc-800 rounded-lg w-fit">2015 – 2019</span>
+              </div>
+              <p class="text-zinc-400 text-sm font-medium mb-3">UC Berkeley · Berkeley, CA</p>
+              <p class="text-zinc-500 text-sm leading-relaxed">Graduated with honors. Focused on human-computer interaction and software engineering. Founded the university's first design x engineering student club.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- VALUES -->
+    <section class="px-4 sm:px-6 lg:px-8 py-24 max-w-7xl mx-auto">
+      <p data-animate class="text-blue-600 text-sm font-medium mb-3 text-center">What I believe in</p>
+      <h2 data-animate data-animate-delay="1" class="font-heading font-bold text-zinc-950 text-3xl sm:text-5xl tracking-tight mb-14 text-center">My Values</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div data-animate data-animate-delay="1" class="bg-white border border-zinc-200 rounded-2xl p-6">
+          <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mb-5">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          </div>
+          <h3 class="font-heading font-semibold text-zinc-950 text-lg mb-2">User-First Thinking</h3>
+          <p class="text-zinc-500 text-sm leading-relaxed">Every decision — from architecture to button color — should serve the end user. I advocate relentlessly for the people who will actually use what we build.</p>
+        </div>
+        <div data-animate data-animate-delay="2" class="bg-white border border-zinc-200 rounded-2xl p-6">
+          <div class="w-10 h-10 bg-violet-50 rounded-xl flex items-center justify-center mb-5">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <h3 class="font-heading font-semibold text-zinc-950 text-lg mb-2">Craft & Quality</h3>
+          <p class="text-zinc-500 text-sm leading-relaxed">I take pride in the details. Clean code, pixel-perfect interfaces, and thoughtful interactions aren't optional extras — they're the baseline for work I'm proud of.</p>
+        </div>
+        <div data-animate data-animate-delay="3" class="bg-white border border-zinc-200 rounded-2xl p-6">
+          <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center mb-5">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3 class="font-heading font-semibold text-zinc-950 text-lg mb-2">Collaborative Spirit</h3>
+          <p class="text-zinc-500 text-sm leading-relaxed">The best products are built by teams, not individuals. I thrive in collaborative environments, believe in open communication, and lift others up.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="px-4 sm:px-6 lg:px-8 pb-24 max-w-7xl mx-auto text-center">
+      <div data-animate class="bg-zinc-950 rounded-3xl p-12 sm:p-16">
+        <h2 class="font-heading font-bold text-white text-3xl sm:text-5xl tracking-tight mb-4">Let's work together</h2>
+        <p class="text-zinc-400 text-lg mb-8 max-w-md mx-auto leading-relaxed">I'm open to new opportunities, freelance work, and interesting projects.</p>
+        <a href="contact.html" class="inline-flex items-center gap-2 px-7 py-4 bg-white text-zinc-950 font-medium rounded-xl hover:bg-zinc-100 transition-colors cursor-pointer">
+          Start a conversation
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-zinc-200 px-4 sm:px-6 lg:px-8 py-10">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+      <p class="font-heading font-bold text-zinc-950 text-lg tracking-tight">Alex Rivera</p>
+      <div class="flex items-center gap-6 text-sm text-zinc-500">
+        <a href="index.html" class="">Home</a>
+        <a href="projects.html" class="">Work</a>
+        <a href="about.html" class="">About</a>
+        <a href="blog.html" class="">Blog</a>
+        <a href="books.html" class="">Books</a>
+        <a href="contact.html" class="">Contact</a>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="#" aria-label="GitHub" class="text-zinc-400 hover:text-zinc-950 transition-colors cursor-pointer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+        </a>
+        <a href="#" aria-label="LinkedIn" class="text-zinc-400 hover:text-zinc-950 transition-colors cursor-pointer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+        <a href="#" aria-label="Twitter" class="text-zinc-400 hover:text-zinc-950 transition-colors cursor-pointer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+      </div>
+    </div>
+    <p class="text-center text-zinc-400 text-sm mt-8">© 2024 Alex Rivera. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Entrance animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+    setTimeout(() => {
+      document.querySelectorAll('section:first-of-type [data-animate]').forEach(el => el.classList.add('visible'));
+    }, 100);
+
+    // Skill bar animation on scroll
+    const skillBarsContainer = document.getElementById('skill-bars');
+    const skillObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll('.skill-fill').forEach(fill => fill.classList.add('animated'));
+          skillObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    if (skillBarsContainer) skillObserver.observe(skillBarsContainer);
+
+    // Mobile menu
+    const menuBtn = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const bar1 = document.getElementById('bar1');
+    const bar3 = document.getElementById('bar3');
+    let menuOpen = false;
+    menuBtn.addEventListener('click', () => {
+      menuOpen = !menuOpen;
+      if (menuOpen) {
+        mobileMenu.classList.remove('hidden');
+        mobileMenu.classList.add('open');
+        bar1.style.transform = 'rotate(45deg) translate(4px, 4px)';
+        bar3.style.transform = 'rotate(-45deg) translate(4px, -4px)';
+      } else {
+        mobileMenu.classList.remove('open');
+        mobileMenu.classList.add('hidden');
+        bar1.style.transform = '';
+        bar3.style.transform = '';
+      }
+    });
+  </script>
+</body>
+</html>

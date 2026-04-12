@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OWASP Top 10 in 2024: What's Changed and What Still Gets You Hacked — Alex Rivera</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { heading: ['Archivo','sans-serif'], sans: ['Space Grotesk','sans-serif'] } } }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background-color: #FAFAFA; color: #09090B; font-family: 'Space Grotesk', sans-serif; }
+    [data-animate] { opacity:0; transform:translateY(2rem); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+    [data-animate].visible { opacity:1; transform:translateY(0); }
+    @media (prefers-reduced-motion:reduce) { [data-animate] { opacity:1; transform:none; transition:none; } }
+    #mobile-menu { transition: opacity .2s ease, transform .2s ease; }
+    #mobile-menu.hidden { opacity:0; pointer-events:none; transform:translateY(-8px); }
+    #mobile-menu.open { opacity:1; pointer-events:all; transform:translateY(0); display:block; }
+    .prose h2 { font-family:'Archivo',sans-serif; font-weight:700; font-size:1.375rem; color:#09090B; margin:2.5rem 0 .75rem; line-height:1.3; }
+    .prose h3 { font-family:'Archivo',sans-serif; font-weight:600; font-size:1.125rem; color:#18181B; margin:2rem 0 .5rem; }
+    .prose p { color:#3F3F46; line-height:1.8; margin:0 0 1.25rem; font-size:1rem; }
+    .prose ul,.prose ol { color:#3F3F46; line-height:1.8; margin:0 0 1.25rem; padding-left:1.5rem; }
+    .prose li { margin-bottom:.4rem; }
+    .prose pre { background:#18181B; color:#E4E4E7; padding:1.25rem 1.5rem; border-radius:.75rem; overflow-x:auto; margin:1.75rem 0; font-size:.8125rem; line-height:1.75; font-family:ui-monospace,monospace; }
+    .prose code:not(pre code) { background:#F4F4F5; color:#0F172A; padding:.15rem .4rem; border-radius:.375rem; font-size:.875em; font-family:ui-monospace,monospace; }
+    .prose blockquote { border-left:3px solid #EA580C; padding-left:1.25rem; margin:1.75rem 0; color:#52525B; font-style:italic; font-size:1.0625rem; }
+    .prose strong { color:#09090B; font-weight:600; }
+    .prose a { color:#EA580C; text-decoration:underline; }
+    .prose hr { border:none; border-top:1px solid #E4E4E7; margin:2.5rem 0; }
+    .callout { border-radius:.75rem; padding:1rem 1.25rem; margin:1.75rem 0; font-size:.9375rem; }
+    .callout-info { background:#EFF6FF; border:1px solid #BFDBFE; color:#1E40AF; }
+    .callout-warn { background:#FFF7ED; border:1px solid #FED7AA; color:#9A3412; }
+    .callout-good { background:#F0FDF4; border:1px solid #BBF7D0; color:#166534; }
+    /* ── Active nav pill ─────────────────────────── */
+    .nav-links a {
+      padding: .375rem .75rem;
+      border-radius: .75rem;
+      font-size: .875rem;
+      font-weight: 500;
+      color: #71717A;
+      transition: background .15s ease, color .15s ease;
+      white-space: nowrap;
+    }
+    .nav-links a:hover { background: #F4F4F5; color: #09090B; }
+    .nav-links a.nav-active {
+      background: #18181B;
+      color: #fff;
+      font-weight: 600;
+    }
+    /* Mobile active pill */
+    .mobile-nav-active {
+      background: #18181B !important;
+      color: #fff !important;
+    }
+  </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+
+  <nav class="fixed top-4 left-4 right-4 z-50 flex items-center justify-between px-5 py-3 bg-white/80 backdrop-blur-md border border-zinc-200 rounded-2xl shadow-sm">
+    <a href="index.html" class="font-heading font-bold text-zinc-950 text-lg tracking-tight">AR</a>
+    <div class="hidden md:flex items-center gap-1 nav-links">
+      <a href="index.html" class="">Home</a>
+      <a href="projects.html" class="">Work</a>
+      <a href="about.html" class="">About</a>
+      <a href="blog.html" class="nav-active">Blog</a>
+      <a href="books.html" class="">Books</a>
+      <a href="contact.html" class="">Contact</a>
+    </div>
+    <a href="contact.html" class="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-zinc-950 text-white text-sm font-medium rounded-xl hover:bg-zinc-800 transition-colors cursor-pointer">Hire Me</a>
+    <button id="menu-btn" aria-label="Open menu" class="md:hidden flex flex-col gap-1.5 p-2 cursor-pointer">
+      <span class="w-5 h-0.5 bg-zinc-950 block transition-all" id="bar1"></span>
+      <span class="w-5 h-0.5 bg-zinc-950 block transition-all"></span>
+      <span class="w-4 h-0.5 bg-zinc-950 block transition-all" id="bar3"></span>
+    </button>
+  </nav>
+  <div id="mobile-menu" class="hidden fixed top-[76px] left-4 right-4 z-40 bg-white border border-zinc-200 rounded-2xl shadow-lg p-4">
+    <div class="flex flex-col gap-1">
+      <a href="index.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Home</a>
+      <a href="projects.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Work</a>
+      <a href="about.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">About</a>
+      <a href="blog.html" class="px-4 py-3 text-sm font-medium rounded-xl mobile-nav-active">Blog</a>
+      <a href="books.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Books</a>
+      <a href="contact.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Contact</a>
+      <a href="contact.html" class="mt-2 px-4 py-3 text-sm font-medium text-white bg-zinc-950 rounded-xl text-center">Hire Me</a>
+    </div>
+  </div>
+
+  <main class="pt-28 pb-24">
+    <div class="px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+
+      <a href="blog.html" data-animate class="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-950 transition-colors mb-10 cursor-pointer">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        Back to Blog
+      </a>
+
+      <header data-animate>
+        <div class="flex items-center gap-3 mb-4">
+          <span class="bg-orange-50 text-orange-700 border-orange-200 text-xs font-semibold px-2.5 py-1 rounded-lg border">Cybersecurity</span>
+          <span class="text-zinc-400 text-sm">Apr 2, 2024</span>
+        </div>
+        <h1 class="font-heading font-black text-zinc-950 text-3xl sm:text-4xl leading-tight tracking-tight mb-5">OWASP Top 10 in 2024: What's Changed and What Still Gets You Hacked</h1>
+        <p class="text-zinc-500 text-lg leading-relaxed mb-6">Injection is no longer #1. Broken access control now tops the list. A practical breakdown of each category with code-level examples developers can act on today.</p>
+        <div class="flex items-center gap-3 pb-8 border-b border-zinc-200">
+          <div class="w-9 h-9 bg-gradient-to-br from-blue-600 to-violet-700 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">AR</div>
+          <div>
+            <p class="text-zinc-950 text-sm font-medium">Alex Rivera</p>
+            <div class="flex items-center gap-2 text-zinc-400 text-xs">
+              <span>Apr 2, 2024</span>
+              <span class="w-1 h-1 bg-zinc-300 rounded-full inline-block"></span>
+              <span>14 min read</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <article class="prose mt-8">
+
+        <p>The OWASP Top 10 is the de facto standard reference for web application security. Updated every few years, it reflects real-world vulnerability data gathered from hundreds of organisations and thousands of applications. The 2021 edition — still current as of 2024 — made some dramatic shifts that every developer should understand.</p>
+
+        <h2>What Changed: The Big Three Movements</h2>
+        <p><strong>A01 — Broken Access Control</strong> jumped from fifth to first. It's the most prevalent vulnerability in tested applications. Injection dropped to third. Three new categories appeared: Insecure Design, Software and Data Integrity Failures, and Server-Side Request Forgery (SSRF).</p>
+
+        <blockquote>The shift from Injection to Broken Access Control at the top tells us something important: frameworks have largely solved injection at the library level, but authorisation logic is still hand-rolled and still wrong.</blockquote>
+
+        <h2>A01: Broken Access Control</h2>
+        <p>Access control enforces that users can only do what they're permitted to do. When it breaks, authenticated users escalate privileges, access other users' data, or perform actions they shouldn't. The most common failure is trusting the client to supply their own user ID.</p>
+
+        <pre><code># Vulnerable — user supplies their own ID in the request body
+# POST /api/account/update
+# {"userId": 999, "email": "attacker@evil.com"}
+
+@app.route('/api/account/update', methods=['POST'])
+def update_account():
+    data = request.json
+    user_id = data['userId']  # NEVER trust this
+    db.execute("UPDATE users SET email=? WHERE id=?",
+               (data['email'], user_id))
+
+# Secure — derive userId from the authenticated session token
+@app.route('/api/account/update', methods=['POST'])
+def update_account():
+    user_id = get_current_user_id()  # from JWT/session, not from request
+    data = request.json
+    db.execute("UPDATE users SET email=? WHERE id=?",
+               (data['email'], user_id))</code></pre>
+
+        <h2>A02: Cryptographic Failures</h2>
+        <p>Formerly called "Sensitive Data Exposure," this category covers failures in how data is protected in transit and at rest. The most common failures: storing passwords with MD5 or SHA1 instead of bcrypt/Argon2, transmitting sensitive data over HTTP, and using weak or hardcoded encryption keys.</p>
+
+        <pre><code># Dangerous — MD5 is not a password hashing algorithm
+import hashlib
+password_hash = hashlib.md5(password.encode()).hexdigest()
+
+# Correct — use bcrypt with appropriate cost factor
+import bcrypt
+password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt(rounds=12))</code></pre>
+
+        <h2>A03: Injection</h2>
+        <p>SQL injection, command injection, LDAP injection — any time user input is interpreted as code rather than data. Modern ORMs largely prevent SQL injection, but developers still reach for raw query strings when they think they need performance or flexibility.</p>
+
+        <pre><code># Vulnerable — string interpolation in a SQL query
+query = f"SELECT * FROM orders WHERE user_id = {user_id} AND status = '{status}'"
+
+# Secure — parameterised query
+cursor.execute(
+    "SELECT * FROM orders WHERE user_id = %s AND status = %s",
+    (user_id, status)
+)</code></pre>
+
+        <h2>A04: Insecure Design</h2>
+        <p>New in 2021, this category acknowledges that some vulnerabilities are architectural, not implementation bugs. Insufficient rate limiting, missing multi-factor authentication on sensitive operations, password reset flows that don't expire tokens — these are design failures that no amount of code review catches because the right code was never specified.</p>
+
+        <div class="callout callout-warn">
+          <strong>Threat modelling helps here.</strong> Running a STRIDE analysis during design surfaces "what if an attacker does X" questions before any code is written. See the companion post on STRIDE for a hands-on walkthrough.
+        </div>
+
+        <h2>A05: Security Misconfiguration</h2>
+        <p>Default credentials, verbose error messages exposing stack traces, unnecessary open ports, permissive CORS policies, missing security headers. This is the "everything else" category and it's genuinely everywhere.</p>
+
+        <pre><code># Check for missing security headers with a simple curl
+curl -I https://yourapp.com | grep -E "X-Frame-Options|X-Content-Type|CSP|HSTS"
+
+# Expected headers to set in your web framework:
+# Strict-Transport-Security: max-age=31536000; includeSubDomains
+# X-Content-Type-Options: nosniff
+# X-Frame-Options: DENY
+# Content-Security-Policy: default-src 'self'</code></pre>
+
+        <h2>A06: Vulnerable and Outdated Components</h2>
+        <p>Log4Shell, the Spring4Shell RCE, the XZ Utils backdoor — the most devastating attacks in recent years targeted third-party libraries, not custom application code. Knowing what's in your supply chain is now a security requirement, not a nice-to-have.</p>
+
+        <pre><code># Automate dependency scanning in CI
+# npm
+npm audit --audit-level=high
+
+# Python
+pip-audit
+
+# Docker images
+trivy image myapp:latest --exit-code 1 --severity HIGH,CRITICAL</code></pre>
+
+        <h2>A07: Identification and Authentication Failures</h2>
+        <p>Weak password policies, missing account lockout, broken "remember me" tokens, session IDs in URLs. Authentication is a solved problem — use a proven identity library or managed auth provider rather than building it yourself.</p>
+
+        <h2>A08: Software and Data Integrity Failures</h2>
+        <p>New in 2021, this covers CI/CD pipeline compromises and insecure deserialization. The SolarWinds attack was a textbook A08 failure — malicious code was injected into a legitimate software build. Verify the integrity of your build pipeline and sign your artefacts.</p>
+
+        <h2>A09: Security Logging and Monitoring Failures</h2>
+        <p>You can't detect an incident if you're not logging security events. Failed logins, privilege escalations, unusual data access patterns — all must be logged with enough context to reconstruct what happened, and those logs must be monitored for anomalies.</p>
+
+        <h2>A10: Server-Side Request Forgery (SSRF)</h2>
+        <p>New in 2021 and increasingly important as cloud adoption grows. SSRF occurs when an application fetches a remote resource based on user-supplied input without validating the destination URL. An attacker can use this to probe internal services, access cloud metadata endpoints (169.254.169.254), or exfiltrate data.</p>
+
+        <pre><code># Vulnerable
+import requests
+url = request.args.get('url')
+response = requests.get(url)  # attacker supplies http://169.254.169.254/latest/meta-data/
+
+# Secure — allowlist permitted domains
+from urllib.parse import urlparse
+ALLOWED_HOSTS = {'api.trusted-partner.com', 'cdn.example.com'}
+
+def safe_fetch(url):
+    parsed = urlparse(url)
+    if parsed.hostname not in ALLOWED_HOSTS:
+        raise ValueError(f"Host {parsed.hostname} not permitted")
+    return requests.get(url, timeout=5)</code></pre>
+
+        <p>The OWASP Top 10 is a starting point, not a comprehensive security programme. But addressing all ten categories systematically puts you ahead of the majority of applications in production today. Start with broken access control — it's the most prevalent, and fixing it typically requires examining your authorisation model end-to-end, which surfaces issues in categories four through seven as a side effect.</p>
+
+      </article>
+
+      <div class="mt-10 pt-8 border-t border-zinc-200 flex flex-wrap gap-2">
+        <span class="px-3 py-1.5 bg-zinc-100 text-zinc-600 text-xs font-medium rounded-lg">OWASP</span>
+        <span class="px-3 py-1.5 bg-zinc-100 text-zinc-600 text-xs font-medium rounded-lg">Web Security</span>
+        <span class="px-3 py-1.5 bg-zinc-100 text-zinc-600 text-xs font-medium rounded-lg">SQL Injection</span>
+        <span class="px-3 py-1.5 bg-zinc-100 text-zinc-600 text-xs font-medium rounded-lg">Access Control</span>
+        <span class="px-3 py-1.5 bg-zinc-100 text-zinc-600 text-xs font-medium rounded-lg">SSRF</span>
+        <span class="px-3 py-1.5 bg-zinc-100 text-zinc-600 text-xs font-medium rounded-lg">Python</span>
+      </div>
+
+    </div>
+
+    <div class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mt-20">
+      <div class="border-t border-zinc-200 pt-14">
+        <h2 class="font-heading font-bold text-zinc-950 text-2xl mb-8">More in Cybersecurity</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <a href="post-zero-trust.html" class="block bg-white border border-zinc-200 rounded-2xl p-6 hover:border-zinc-400 hover:shadow-sm transition-all cursor-pointer">
+            <div class="h-1.5 rounded-full bg-gradient-to-r from-orange-500 to-red-600 mb-5"></div>
+            <span class="bg-orange-50 text-orange-700 border-orange-200 text-xs font-semibold px-2.5 py-1 rounded-lg border">Cybersecurity</span>
+            <h3 class="font-heading font-semibold text-zinc-950 text-base leading-snug mt-3 mb-2">Zero-Trust Architecture: Practical Implementation for Mid-Size Teams</h3>
+            <p class="text-zinc-500 text-sm">Mar 20, 2024 · 16 min read</p>
+          </a>
+          <a href="post-secrets-management.html" class="block bg-white border border-zinc-200 rounded-2xl p-6 hover:border-zinc-400 hover:shadow-sm transition-all cursor-pointer">
+            <div class="h-1.5 rounded-full bg-gradient-to-r from-orange-500 to-red-600 mb-5"></div>
+            <span class="bg-orange-50 text-orange-700 border-orange-200 text-xs font-semibold px-2.5 py-1 rounded-lg border">Cybersecurity</span>
+            <h3 class="font-heading font-semibold text-zinc-950 text-base leading-snug mt-3 mb-2">Secrets Management Done Right: Vault, SOPS, and Why .env Files Are a Liability</h3>
+            <p class="text-zinc-500 text-sm">Feb 28, 2024 · 10 min read</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-zinc-200 px-4 sm:px-6 lg:px-8 py-10">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+      <p class="font-heading font-bold text-zinc-950 text-lg tracking-tight">Alex Rivera</p>
+      <div class="flex items-center gap-6 text-sm text-zinc-500">
+        <a href="index.html" class="">Home</a>
+        <a href="projects.html" class="">Work</a>
+        <a href="about.html" class="">About</a>
+        <a href="blog.html" class="">Blog</a>
+        <a href="books.html" class="">Books</a>
+        <a href="contact.html" class="">Contact</a>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="#" aria-label="GitHub" class="text-zinc-400 hover:text-zinc-950 transition-colors cursor-pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg></a>
+        <a href="#" aria-label="LinkedIn" class="text-zinc-400 hover:text-zinc-950 transition-colors cursor-pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        <a href="#" aria-label="Twitter" class="text-zinc-400 hover:text-zinc-950 transition-colors cursor-pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+      </div>
+    </div>
+    <p class="text-center text-zinc-400 text-sm mt-8">© 2024 Alex Rivera. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const obs = new IntersectionObserver(e => e.forEach(x => { if(x.isIntersecting){x.target.classList.add('visible');obs.unobserve(x.target);} }), {threshold:.1});
+    document.querySelectorAll('[data-animate]').forEach(el => obs.observe(el));
+    setTimeout(()=>document.querySelectorAll('[data-animate]').forEach(el=>el.classList.add('visible')),100);
+    const btn=document.getElementById('menu-btn'),menu=document.getElementById('mobile-menu'),b1=document.getElementById('bar1'),b3=document.getElementById('bar3');
+    let open=false;
+    btn.addEventListener('click',()=>{open=!open;if(open){menu.classList.remove('hidden');menu.classList.add('open');b1.style.transform='rotate(45deg) translate(4px,4px)';b3.style.transform='rotate(-45deg) translate(4px,-4px)';}else{menu.classList.remove('open');menu.classList.add('hidden');b1.style.transform='';b3.style.transform='';}});
+  </script>
+</body>
+</html>
