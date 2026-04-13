@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -63,6 +65,25 @@
 
     /* Reading time dot */
     .dot { width: 3px; height: 3px; border-radius: 50%; background: #A1A1AA; display: inline-block; }
+
+    /* Search input */
+    .search-wrap { position: relative; }
+    .search-wrap svg { position: absolute; left: .75rem; top: 50%; transform: translateY(-50%); pointer-events: none; color: #A1A1AA; }
+    #post-search { padding: .5rem .875rem .5rem 2.25rem; border: 1px solid #E4E4E7; border-radius: .75rem; font-size: .875rem; font-family: 'Space Grotesk', sans-serif; background: #fff; color: #09090B; outline: none; transition: border-color .15s ease, box-shadow .15s ease; width: 200px; }
+    #post-search:focus { border-color: #A1A1AA; box-shadow: 0 0 0 3px rgba(161,161,170,.12); }
+    #post-search::placeholder { color: #A1A1AA; }
+    @media (max-width: 480px) { #post-search { width: 100%; } }
+
+    /* Pagination */
+    #pagination { display: flex; align-items: center; justify-content: center; gap: .375rem; margin-top: 2rem; flex-wrap: wrap; }
+    .pg-btn { min-width: 2.25rem; height: 2.25rem; padding: 0 .625rem; border-radius: .625rem; font-size: .875rem; font-weight: 500; border: 1px solid #E4E4E7; background: #fff; color: #3F3F46; cursor: pointer; transition: all .15s ease; display: inline-flex; align-items: center; justify-content: center; font-family: 'Space Grotesk', sans-serif; }
+    .pg-btn:hover:not([disabled]) { border-color: #A1A1AA; color: #09090B; background: #F4F4F5; }
+    .pg-btn.pg-active { background: #09090B; color: #fff; border-color: #09090B; font-weight: 600; }
+    .pg-btn[disabled] { opacity: .35; cursor: not-allowed; }
+    .pg-ellipsis { color: #A1A1AA; font-size: .875rem; padding: 0 .25rem; display: inline-flex; align-items: center; height: 2.25rem; }
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner-ring { width: 2rem; height: 2rem; border: 2.5px solid #E4E4E7; border-top-color: #09090B; border-radius: 50%; animation: spin .7s linear infinite; }
     /* ── Active nav pill ─────────────────────────── */
     .nav-links a {
       padding: .375rem .75rem;
@@ -135,433 +156,81 @@
     </section>
 
     <!-- ===== FEATURED POST ===== -->
-    <section class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-16">
-      <a data-animate href="#post-shift-left" class="featured-card block bg-zinc-950 rounded-3xl overflow-hidden cursor-pointer group">
-        <div class="grid grid-cols-1 lg:grid-cols-2">
-          <!-- Text -->
-          <div class="p-8 sm:p-12 flex flex-col justify-between">
+    <section id="featured-section" class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-16">
+      <a id="featured-post-container" data-animate class="featured-card block bg-zinc-950 rounded-3xl overflow-hidden cursor-pointer group">
+        <!-- Skeleton shown while Firebase loads -->
+        <div class="h-1 bg-zinc-800"></div>
+        <div class="grid grid-cols-1 lg:grid-cols-5 min-h-[22rem] animate-pulse">
+          <div class="lg:col-span-3 p-10 sm:p-14 flex flex-col justify-between gap-8">
             <div>
-              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg mb-6">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                Featured
-              </span>
-              <p class="text-blue-400 text-xs font-medium uppercase tracking-widest mb-3">QA Testing</p>
-              <h2 class="font-heading font-bold text-white text-2xl sm:text-3xl leading-tight mb-4 group-hover:text-blue-300 transition-colors">
-                Shift-Left Testing: How Moving QA Earlier Cuts Bug Costs by 10x
-              </h2>
-              <p class="text-zinc-400 text-sm leading-relaxed mb-8">
-                Traditional QA catches defects late, when fixes are most expensive. Shift-left testing integrates quality checks from day one — into requirements, design, and code reviews. Here's a practical framework for making it work on real teams.
-              </p>
+              <div class="flex items-center gap-3 mb-7">
+                <div class="h-6 w-20 bg-zinc-800 rounded-full"></div>
+                <div class="h-3 w-px bg-zinc-700"></div>
+                <div class="h-3 w-24 bg-zinc-800 rounded"></div>
+              </div>
+              <div class="h-10 bg-zinc-800 rounded-lg w-4/5 mb-3"></div>
+              <div class="h-10 bg-zinc-800 rounded-lg w-3/5 mb-6"></div>
+              <div class="h-3 bg-zinc-800 rounded w-full mb-2"></div>
+              <div class="h-3 bg-zinc-800 rounded w-5/6 mb-2"></div>
+              <div class="h-3 bg-zinc-800 rounded w-3/4"></div>
             </div>
-            <div class="flex items-center gap-4">
-              <div class="w-8 h-8 bg-zinc-700 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">AR</div>
-              <div>
-                <p class="text-zinc-300 text-sm font-medium">Alex Rivera</p>
-                <div class="flex items-center gap-2 text-zinc-500 text-xs">
-                  <span>Mar 28, 2024</span>
-                  <span class="dot"></span>
-                  <span>9 min read</span>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-zinc-800 rounded-full"></div>
+                <div>
+                  <div class="h-3 w-24 bg-zinc-800 rounded mb-2"></div>
+                  <div class="h-2.5 w-32 bg-zinc-800 rounded"></div>
                 </div>
               </div>
+              <div class="h-9 w-32 bg-zinc-800 rounded-xl"></div>
             </div>
           </div>
-          <!-- Visual -->
-          <div class="hidden lg:flex items-center justify-center p-12 bg-gradient-to-br from-blue-600/20 to-indigo-900/40 relative overflow-hidden">
-            <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 24px 24px;"></div>
-            <!-- Decorative diagram -->
-            <div class="relative z-10 w-full max-w-xs">
-              <div class="flex flex-col gap-3">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 bg-blue-600 rounded-lg flex-shrink-0"></div>
-                  <div class="flex-1 h-8 bg-zinc-800 rounded-lg flex items-center px-3">
-                    <span class="text-zinc-400 text-xs">Requirements</span>
-                  </div>
-                  <span class="text-emerald-400 text-xs font-bold">✓ Tests</span>
-                </div>
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 bg-violet-600 rounded-lg flex-shrink-0"></div>
-                  <div class="flex-1 h-8 bg-zinc-800 rounded-lg flex items-center px-3">
-                    <span class="text-zinc-400 text-xs">Design</span>
-                  </div>
-                  <span class="text-emerald-400 text-xs font-bold">✓ Tests</span>
-                </div>
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 bg-emerald-600 rounded-lg flex-shrink-0"></div>
-                  <div class="flex-1 h-8 bg-zinc-800 rounded-lg flex items-center px-3">
-                    <span class="text-zinc-400 text-xs">Development</span>
-                  </div>
-                  <span class="text-emerald-400 text-xs font-bold">✓ Tests</span>
-                </div>
-                <div class="ml-11 text-center text-zinc-600 text-xs mt-2">← Shift Left</div>
-              </div>
-            </div>
-          </div>
+          <div class="hidden lg:block lg:col-span-2 bg-zinc-900"></div>
         </div>
       </a>
     </section>
 
     <!-- ===== CATEGORY FILTER ===== -->
     <section class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-10">
-      <div data-animate class="flex flex-wrap items-center gap-2">
-        <button class="filter-btn active px-4 py-2 text-sm font-medium border border-zinc-200 rounded-xl cursor-pointer" data-filter="all">
-          All Posts
-        </button>
-        <button class="filter-btn px-4 py-2 text-sm font-medium border border-zinc-200 text-zinc-600 hover:border-zinc-400 rounded-xl cursor-pointer" data-filter="qa">
-          <span class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>
-            QA Testing
-          </span>
-        </button>
-        <button class="filter-btn px-4 py-2 text-sm font-medium border border-zinc-200 text-zinc-600 hover:border-zinc-400 rounded-xl cursor-pointer" data-filter="cyber">
-          <span class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-orange-500 inline-block"></span>
-            Cybersecurity
-          </span>
-        </button>
-        <button class="filter-btn px-4 py-2 text-sm font-medium border border-zinc-200 text-zinc-600 hover:border-zinc-400 rounded-xl cursor-pointer" data-filter="petro">
-          <span class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
-            Petroleum Eng.
-          </span>
-        </button>
+      <div data-animate class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <button class="filter-btn active px-4 py-2 text-sm font-medium border border-zinc-200 rounded-xl cursor-pointer" data-filter="all">
+            All Posts
+          </button>
+          <button class="filter-btn px-4 py-2 text-sm font-medium border border-zinc-200 text-zinc-600 hover:border-zinc-400 rounded-xl cursor-pointer" data-filter="qa">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-blue-500 inline-block"></span>
+              QA Testing
+            </span>
+          </button>
+          <button class="filter-btn px-4 py-2 text-sm font-medium border border-zinc-200 text-zinc-600 hover:border-zinc-400 rounded-xl cursor-pointer" data-filter="cyber">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-orange-500 inline-block"></span>
+              Cybersecurity
+            </span>
+          </button>
+          <button class="filter-btn px-4 py-2 text-sm font-medium border border-zinc-200 text-zinc-600 hover:border-zinc-400 rounded-xl cursor-pointer" data-filter="petro">
+            <span class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+              Petroleum Eng.
+            </span>
+          </button>
+        </div>
+        <!-- Search -->
+        <div class="search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input id="post-search" type="search" placeholder="Search posts…" aria-label="Search posts" autocomplete="off" />
+        </div>
       </div>
     </section>
 
     <!-- ===== POST GRID ===== -->
     <section class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-32">
       <div id="post-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-
-        <!-- ── QA TESTING ────────────────────────────────── -->
-
-        <!-- QA 1 -->
-        <article id="post-shift-left" class="blog-card bg-white border border-zinc-200 rounded-2xl overflow-hidden cursor-pointer flex flex-col" data-cat="qa">
-          <!-- Banner -->
-          <div class="h-3 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-          <div class="p-6 flex flex-col flex-1">
-            <div class="flex items-center justify-between mb-4">
-              <span class="cat-qa text-xs font-semibold px-2.5 py-1 rounded-lg border">QA Testing</span>
-              <span class="text-zinc-400 text-xs">Mar 28, 2024</span>
-            </div>
-            <h2 class="font-heading font-bold text-zinc-950 text-lg leading-snug mb-3">
-              Shift-Left Testing: How Moving QA Earlier Cuts Bug Costs by 10x
-            </h2>
-            <p class="text-zinc-500 text-sm leading-relaxed flex-1 mb-5">
-              Traditional QA catches defects late, when fixes are most expensive. Learn how to integrate quality checks from requirements all the way to production.
-            </p>
-            <div class="flex items-center justify-between pt-4 border-t border-zinc-100">
-              <div class="flex items-center gap-2 text-zinc-400 text-xs">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                9 min read
-              </div>
-              <span class="text-blue-600 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                Read
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-              </span>
-            </div>
-          </div>
-        </article>
-
-        <!-- QA 2 -->
-        <article class="blog-card bg-white border border-zinc-200 rounded-2xl overflow-hidden cursor-pointer flex flex-col" data-cat="qa">
-          <div class="h-3 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-          <div class="p-6 flex flex-col flex-1">
-            <div class="flex items-center justify-between mb-4">
-              <span class="cat-qa text-xs font-semibold px-2.5 py-1 rounded-lg border">QA Testing</span>
-              <span class="text-zinc-400 text-xs">Mar 12, 2024</span>
-            </div>
-            <h2 class="font-heading font-bold text-zinc-950 text-lg leading-snug mb-3">
-              API Contract Testing with Pact: Stop Breaking Microservices
-            </h2>
-            <p class="text-zinc-500 text-sm leading-relaxed flex-1 mb-5">
-              Consumer-driven contract testing lets teams evolve microservices independently without regression surprises. A hands-on guide using Pact in a Node.js/TypeScript stack.
-            </p>
-            <div class="flex items-center justify-between pt-4 border-t border-zinc-100">
-              <div class="flex items-center gap-2 text-zinc-400 text-xs">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                11 min read
-              </div>
-              <span class="text-blue-600 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                Read
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-              </span>
-            </div>
-          </div>
-        </article>
-
-        <!-- QA 3 -->
-        <article class="blog-card bg-white border border-zinc-200 rounded-2xl overflow-hidden cursor-pointer flex flex-col" data-cat="qa">
-          <div class="h-3 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-          <div class="p-6 flex flex-col flex-1">
-            <div class="flex items-center justify-between mb-4">
-              <span class="cat-qa text-xs font-semibold px-2.5 py-1 rounded-lg border">QA Testing</span>
-              <span class="text-zinc-400 text-xs">Feb 19, 2024</span>
-            </div>
-            <h2 class="font-heading font-bold text-zinc-950 text-lg leading-snug mb-3">
-              Writing Flake-Free E2E Tests: Lessons from 50,000 Playwright Runs
-            </h2>
-            <p class="text-zinc-500 text-sm leading-relaxed flex-1 mb-5">
-              Flaky tests erode trust faster than no tests. After running Playwright at scale, here are the patterns that eliminate 95% of non-deterministic failures.
-            </p>
-            <div class="flex items-center justify-between pt-4 border-t border-zinc-100">
-              <div class="flex items-center gap-2 text-zinc-400 text-xs">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                7 min read
-              </div>
-              <span class="text-blue-600 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                Read
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-              </span>
-            </div>
-          </div>
-        </article>
-
-        <!-- QA 4 -->
-        <article class="blog-card bg-white border border-zinc-200 rounded-2xl overflow-hidden cursor-pointer flex flex-col" data-cat="qa">
-          <div class="h-3 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-          <div class="p-6 flex flex-col flex-1">
-            <div class="flex items-center justify-between mb-4">
-              <span class="cat-qa text-xs font-semibold px-2.5 py-1 rounded-lg border">QA Testing</span>
-              <span class="text-zinc-400 text-xs">Jan 30, 2024</span>
-            </div>
-            <h2 class="font-heading font-bold text-zinc-950 text-lg leading-snug mb-3">
-              Performance Testing Under Load: k6 Patterns for Real-World Traffic
-            </h2>
-            <p class="text-zinc-500 text-sm leading-relaxed flex-1 mb-5">
-              Simulating real user behaviour requires more than ramp-up scripts. This walkthrough covers soak tests, spike scenarios, and how to interpret results without drowning in metrics.
-            </p>
-            <div class="flex items-center justify-between pt-4 border-t border-zinc-100">
-              <div class="flex items-center gap-2 text-zinc-400 text-xs">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                13 min read
-              </div>
-              <span class="text-blue-600 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                Read
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-              </span>
-            </div>
-          </div>
-        </article>
-
-        <!-- ── CYBERSECURITY ────────────────────────────── -->
-
-        <!-- Cyber 1 -->
-        <article class="blog-card bg-white border border-zinc-200 rounded-2xl overflow-hidden cursor-pointer flex flex-col" data-cat="cyber">
-          <div class="h-3 bg-gradient-to-r from-orange-500 to-red-600"></div>
-          <div class="p-6 flex flex-col flex-1">
-            <div class="flex items-center justify-between mb-4">
-              <span class="cat-cyber text-xs font-semibold px-2.5 py-1 rounded-lg border">Cybersecurity</span>
-              <span class="text-zinc-400 text-xs">Apr 2, 2024</span>
-            </div>
-            <h2 class="font-heading font-bold text-zinc-950 text-lg leading-snug mb-3">
-              OWASP Top 10 in 2024: What's Changed and What Still Gets You Hacked
-            </h2>
-            <p class="text-zinc-500 text-sm leading-relaxed flex-1 mb-5">
-              Injection is no longer #1. Broken access control now tops the list. A practical breakdown of each category with code-level examples developers can act on today.
-            </p>
-            <div class="flex items-center justify-between pt-4 border-t border-zinc-100">
-              <div class="flex items-center gap-2 text-zinc-400 text-xs">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                14 min read
-              </div>
-              <span class="text-orange-600 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                Read
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-              </span>
-            </div>
-          </div>
-        </article>
-
-        <!-- Cyber 2 -->
-        <article class="blog-card bg-white border border-zinc-200 rounded-2xl overflow-hidden cursor-pointer flex flex-col" data-cat="cyber">
-          <div class="h-3 bg-gradient-to-r from-orange-500 to-red-600"></div>
-          <div class="p-6 flex flex-col flex-1">
-            <div class="flex items-center justify-between mb-4">
-              <span class="cat-cyber text-xs font-semibold px-2.5 py-1 rounded-lg border">Cybersecurity</span>
-              <span class="text-zinc-400 text-xs">Mar 20, 2024</span>
-            </div>
-            <h2 class="font-heading font-bold text-zinc-950 text-lg leading-snug mb-3">
-              Zero-Trust Architecture: Practical Implementation for Mid-Size Teams
-            </h2>
-            <p class="text-zinc-500 text-sm leading-relaxed flex-1 mb-5">
-              "Never trust, always verify" sounds simple until you try to implement it. This guide covers identity-aware proxies, microsegmentation, and how to phase a zero-trust rollout without breaking production.
-            </p>
-            <div class="flex items-center justify-between pt-4 border-t border-zinc-100">
-              <div class="flex items-center gap-2 text-zinc-400 text-xs">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                16 min read
-              </div>
-              <span class="text-orange-600 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                Read
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-              </span>
-            </div>
-          </div>
-        </article>
-
-        <!-- Cyber 3 -->
-        <article class="blog-card bg-white border border-zinc-200 rounded-2xl overflow-hidden cursor-pointer flex flex-col" data-cat="cyber">
-          <div class="h-3 bg-gradient-to-r from-orange-500 to-red-600"></div>
-          <div class="p-6 flex flex-col flex-1">
-            <div class="flex items-center justify-between mb-4">
-              <span class="cat-cyber text-xs font-semibold px-2.5 py-1 rounded-lg border">Cybersecurity</span>
-              <span class="text-zinc-400 text-xs">Feb 28, 2024</span>
-            </div>
-            <h2 class="font-heading font-bold text-zinc-950 text-lg leading-snug mb-3">
-              Secrets Management Done Right: Vault, SOPS, and Why .env Files Are a Liability
-            </h2>
-            <p class="text-zinc-500 text-sm leading-relaxed flex-1 mb-5">
-              Hardcoded secrets leak. A deep dive into HashiCorp Vault dynamic secrets, Mozilla SOPS for GitOps workflows, and a migration path from the .env file anti-pattern.
-            </p>
-            <div class="flex items-center justify-between pt-4 border-t border-zinc-100">
-              <div class="flex items-center gap-2 text-zinc-400 text-xs">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                10 min read
-              </div>
-              <span class="text-orange-600 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                Read
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-              </span>
-            </div>
-          </div>
-        </article>
-
-        <!-- Cyber 4 -->
-        <article class="blog-card bg-white border border-zinc-200 rounded-2xl overflow-hidden cursor-pointer flex flex-col" data-cat="cyber">
-          <div class="h-3 bg-gradient-to-r from-orange-500 to-red-600"></div>
-          <div class="p-6 flex flex-col flex-1">
-            <div class="flex items-center justify-between mb-4">
-              <span class="cat-cyber text-xs font-semibold px-2.5 py-1 rounded-lg border">Cybersecurity</span>
-              <span class="text-zinc-400 text-xs">Jan 15, 2024</span>
-            </div>
-            <h2 class="font-heading font-bold text-zinc-950 text-lg leading-snug mb-3">
-              Threat Modelling with STRIDE: A Developer's Hands-On Walkthrough
-            </h2>
-            <p class="text-zinc-500 text-sm leading-relaxed flex-1 mb-5">
-              Threat modelling feels abstract until you run it on a real system. Walk through a complete STRIDE analysis of a web API — spoofing, tampering, repudiation, information disclosure, DoS, and elevation of privilege.
-            </p>
-            <div class="flex items-center justify-between pt-4 border-t border-zinc-100">
-              <div class="flex items-center gap-2 text-zinc-400 text-xs">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                12 min read
-              </div>
-              <span class="text-orange-600 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                Read
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-              </span>
-            </div>
-          </div>
-        </article>
-
-        <!-- ── PETROLEUM ENGINEERING ────────────────────── -->
-
-        <!-- Petro 1 -->
-        <article class="blog-card bg-white border border-zinc-200 rounded-2xl overflow-hidden cursor-pointer flex flex-col" data-cat="petro">
-          <div class="h-3 bg-gradient-to-r from-emerald-500 to-teal-600"></div>
-          <div class="p-6 flex flex-col flex-1">
-            <div class="flex items-center justify-between mb-4">
-              <span class="cat-petro text-xs font-semibold px-2.5 py-1 rounded-lg border">Petroleum Eng.</span>
-              <span class="text-zinc-400 text-xs">Apr 5, 2024</span>
-            </div>
-            <h2 class="font-heading font-bold text-zinc-950 text-lg leading-snug mb-3">
-              Digital Twins in Reservoir Simulation: From Eclipse to Cloud-Native Models
-            </h2>
-            <p class="text-zinc-500 text-sm leading-relaxed flex-1 mb-5">
-              Industry-standard simulators like Eclipse are powerful but expensive and slow to iterate. Explore how cloud-native reservoir digital twins are changing history-matching and production forecasting workflows.
-            </p>
-            <div class="flex items-center justify-between pt-4 border-t border-zinc-100">
-              <div class="flex items-center gap-2 text-zinc-400 text-xs">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                15 min read
-              </div>
-              <span class="text-emerald-700 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                Read
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-              </span>
-            </div>
-          </div>
-        </article>
-
-        <!-- Petro 2 -->
-        <article class="blog-card bg-white border border-zinc-200 rounded-2xl overflow-hidden cursor-pointer flex flex-col" data-cat="petro">
-          <div class="h-3 bg-gradient-to-r from-emerald-500 to-teal-600"></div>
-          <div class="p-6 flex flex-col flex-1">
-            <div class="flex items-center justify-between mb-4">
-              <span class="cat-petro text-xs font-semibold px-2.5 py-1 rounded-lg border">Petroleum Eng.</span>
-              <span class="text-zinc-400 text-xs">Mar 10, 2024</span>
-            </div>
-            <h2 class="font-heading font-bold text-zinc-950 text-lg leading-snug mb-3">
-              Machine Learning for Well Log Interpretation: A Practical Python Guide
-            </h2>
-            <p class="text-zinc-500 text-sm leading-relaxed flex-1 mb-5">
-              Lithology prediction from LAS files using gradient boosting and neural networks. Covers data cleaning, feature engineering from GR/RHOB/NPHI logs, and model evaluation with real field data.
-            </p>
-            <div class="flex items-center justify-between pt-4 border-t border-zinc-100">
-              <div class="flex items-center gap-2 text-zinc-400 text-xs">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                18 min read
-              </div>
-              <span class="text-emerald-700 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                Read
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-              </span>
-            </div>
-          </div>
-        </article>
-
-        <!-- Petro 3 -->
-        <article class="blog-card bg-white border border-zinc-200 rounded-2xl overflow-hidden cursor-pointer flex flex-col" data-cat="petro">
-          <div class="h-3 bg-gradient-to-r from-emerald-500 to-teal-600"></div>
-          <div class="p-6 flex flex-col flex-1">
-            <div class="flex items-center justify-between mb-4">
-              <span class="cat-petro text-xs font-semibold px-2.5 py-1 rounded-lg border">Petroleum Eng.</span>
-              <span class="text-zinc-400 text-xs">Feb 14, 2024</span>
-            </div>
-            <h2 class="font-heading font-bold text-zinc-950 text-lg leading-snug mb-3">
-              Hydraulic Fracturing Optimization Using Real-Time Microseismic Data
-            </h2>
-            <p class="text-zinc-500 text-sm leading-relaxed flex-1 mb-5">
-              Real-time microseismic monitoring allows engineers to adjust fracking parameters on the fly. This post covers fracture geometry interpretation, SRV estimation, and feedback loops for stage-by-stage optimization.
-            </p>
-            <div class="flex items-center justify-between pt-4 border-t border-zinc-100">
-              <div class="flex items-center gap-2 text-zinc-400 text-xs">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                11 min read
-              </div>
-              <span class="text-emerald-700 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                Read
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-              </span>
-            </div>
-          </div>
-        </article>
-
-        <!-- Petro 4 -->
-        <article class="blog-card bg-white border border-zinc-200 rounded-2xl overflow-hidden cursor-pointer flex flex-col" data-cat="petro">
-          <div class="h-3 bg-gradient-to-r from-emerald-500 to-teal-600"></div>
-          <div class="p-6 flex flex-col flex-1">
-            <div class="flex items-center justify-between mb-4">
-              <span class="cat-petro text-xs font-semibold px-2.5 py-1 rounded-lg border">Petroleum Eng.</span>
-              <span class="text-zinc-400 text-xs">Jan 22, 2024</span>
-            </div>
-            <h2 class="font-heading font-bold text-zinc-950 text-lg leading-snug mb-3">
-              Decarbonizing Upstream: Carbon Capture Integration in Offshore Platform Design
-            </h2>
-            <p class="text-zinc-500 text-sm leading-relaxed flex-1 mb-5">
-              With Scope 1 emissions under regulatory pressure, offshore operators are evaluating CCUS at the platform level. This post examines the engineering trade-offs, energy penalties, and retrofit feasibility for existing assets.
-            </p>
-            <div class="flex items-center justify-between pt-4 border-t border-zinc-100">
-              <div class="flex items-center gap-2 text-zinc-400 text-xs">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                13 min read
-              </div>
-              <span class="text-emerald-700 text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
-                Read
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-              </span>
-            </div>
-          </div>
-        </article>
-
+        <!-- Posts are injected here from Firebase -->
+        <div id="posts-loading" class="col-span-full flex justify-center py-20">
+          <div class="spinner-ring"></div>
+        </div>
       </div>
 
       <!-- Empty state -->
@@ -569,8 +238,11 @@
         <p class="text-zinc-400 text-lg">No posts in this category yet.</p>
       </div>
 
+      <!-- Pagination -->
+      <div id="pagination"></div>
+
       <!-- Post count -->
-      <p id="post-count" class="text-zinc-400 text-sm mt-10 text-center">Showing all 12 posts</p>
+      <p id="post-count" class="text-zinc-400 text-sm mt-4 text-center">Showing all 12 posts</p>
     </section>
 
     <!-- ===== NEWSLETTER CTA ===== -->
@@ -628,7 +300,7 @@
   </footer>
 
   <script>
-    // Entrance animations
+    // ── Entrance animations ──────────────────────────────────────
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -642,7 +314,7 @@
       document.querySelectorAll('section:first-of-type [data-animate]').forEach(el => el.classList.add('visible'));
     }, 100);
 
-    // Mobile menu
+    // ── Mobile menu ──────────────────────────────────────────────
     const menuBtn = document.getElementById('menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
     const bar1 = document.getElementById('bar1');
@@ -663,39 +335,7 @@
       }
     });
 
-    // Category filter
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    const posts = document.querySelectorAll('#post-grid article');
-    const emptyState = document.getElementById('empty-state');
-    const postCount = document.getElementById('post-count');
-    const total = posts.length;
-
-    const labels = { all: 'all', qa: 'QA Testing', cyber: 'Cybersecurity', petro: 'Petroleum Eng.' };
-
-    filterBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        filterBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const filter = btn.dataset.filter;
-        let visible = 0;
-        posts.forEach(post => {
-          if (filter === 'all' || post.dataset.cat === filter) {
-            post.style.display = '';
-            visible++;
-          } else {
-            post.style.display = 'none';
-          }
-        });
-        emptyState.classList.toggle('hidden', visible > 0);
-        if (filter === 'all') {
-          postCount.textContent = `Showing all ${total} posts`;
-        } else {
-          postCount.textContent = `Showing ${visible} post${visible !== 1 ? 's' : ''} in ${labels[filter]}`;
-        }
-      });
-    });
-
-    // Newsletter form
+    // ── Newsletter form ──────────────────────────────────────────
     const newsletterForm = document.getElementById('newsletter-form');
     const newsletterSuccess = document.getElementById('newsletter-success');
     newsletterForm.addEventListener('submit', (e) => {
@@ -706,6 +346,311 @@
       newsletterForm.style.display = 'none';
       newsletterSuccess.classList.remove('hidden');
     });
+
+    // ── Firebase ─────────────────────────────────────────────────
+    const firebaseConfig = {
+      apiKey: "AIzaSyBBDcdmekuIHZf79vU1F1WOqXuDqjZ8d-w",
+      authDomain: "calebnanigah-site.firebaseapp.com",
+      projectId: "calebnanigah-site",
+      storageBucket: "calebnanigah-site.firebasestorage.app",
+      messagingSenderId: "876084744507",
+      appId: "1:876084744507:web:cefcae92427150e0c5671e",
+      measurementId: "G-JR9EFB01Q8"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // ── Category config ──────────────────────────────────────────
+    const catConfig = {
+      qa:    { label: 'QA Testing',     pillClass: 'cat-qa',    gradient: 'from-blue-500 to-indigo-600',  readColor: 'text-blue-600',   featGradient: 'from-blue-600/20 to-indigo-900/40',   featAccent: 'text-blue-400'    },
+      cyber: { label: 'Cybersecurity',  pillClass: 'cat-cyber', gradient: 'from-orange-500 to-red-600',   readColor: 'text-orange-600', featGradient: 'from-orange-600/20 to-red-900/40',    featAccent: 'text-orange-400'  },
+      petro: { label: 'Petroleum Eng.', pillClass: 'cat-petro', gradient: 'from-emerald-500 to-teal-600', readColor: 'text-emerald-700',featGradient: 'from-emerald-600/20 to-teal-900/40',  featAccent: 'text-emerald-400' },
+    };
+
+    const filterLabels = { all: 'all', qa: 'QA Testing', cyber: 'Cybersecurity', petro: 'Petroleum Eng.' };
+
+    function escHtml(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function formatDate(str) {
+      if (!str) return '';
+      const [y, m, d] = str.split('-').map(Number);
+      return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    const catIcons = {
+      qa:    `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-white/80"><polyline points="20 6 9 17 4 12"/></svg>`,
+      cyber: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-white/80"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+      petro: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-white/80"><path d="M9 2v6l-2 2v9a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-9l-2-2V2"/><line x1="3" y1="13" x2="21" y2="13"/></svg>`,
+    };
+
+    function renderFeaturedPost(post) {
+      const cat = catConfig[post.category] || catConfig.qa;
+      const icon = catIcons[post.category] || catIcons.qa;
+      const container = document.getElementById('featured-post-container');
+      if (!container) return;
+      if (post.slug) container.href = post.slug;
+      container.innerHTML = `
+        <div class="relative overflow-hidden">
+          <!-- Thin top accent bar -->
+          <div class="h-1 w-full bg-gradient-to-r ${cat.gradient}"></div>
+          <div class="grid grid-cols-1 lg:grid-cols-5 min-h-[22rem]">
+
+            <!-- ── Text panel ── -->
+            <div class="lg:col-span-3 p-10 sm:p-14 flex flex-col justify-between gap-8">
+              <div>
+                <!-- Badge row -->
+                <div class="flex items-center gap-3 mb-7">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 border border-white/10 text-white text-xs font-semibold rounded-full">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Featured
+                  </span>
+                  <span class="w-px h-3 bg-zinc-700 flex-shrink-0"></span>
+                  <span class="${cat.featAccent} text-xs font-semibold uppercase tracking-widest">${escHtml(cat.label)}</span>
+                </div>
+                <!-- Title -->
+                <h2 class="font-heading font-black text-white text-3xl sm:text-4xl lg:text-[2.6rem] leading-[1.05] mb-5 group-hover:opacity-80 transition-opacity">${escHtml(post.title)}</h2>
+                <!-- Excerpt -->
+                <p class="text-zinc-400 text-sm sm:text-base leading-relaxed max-w-lg">${escHtml(post.excerpt)}</p>
+              </div>
+              <!-- Footer row -->
+              <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 bg-zinc-700 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">AR</div>
+                  <div>
+                    <p class="text-zinc-200 text-sm font-semibold leading-none mb-1">Alex Rivera</p>
+                    <div class="flex items-center gap-2 text-zinc-500 text-xs">
+                      <span>${formatDate(post.date)}</span>
+                      <span class="dot"></span>
+                      <span>${post.readtime} min read</span>
+                    </div>
+                  </div>
+                </div>
+                <span class="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-zinc-950 text-sm font-semibold rounded-xl group-hover:bg-zinc-100 transition-colors">
+                  Read article
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                </span>
+              </div>
+            </div>
+
+            <!-- ── Visual panel ── -->
+            <div class="hidden lg:flex lg:col-span-2 items-center justify-center relative overflow-hidden bg-gradient-to-br ${cat.featGradient}">
+              <!-- Dot grid -->
+              <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 20px 20px;"></div>
+              <!-- Concentric rings -->
+              <div class="absolute w-80 h-80 rounded-full border border-white/[0.07]"></div>
+              <div class="absolute w-56 h-56 rounded-full border border-white/[0.10]"></div>
+              <div class="absolute w-36 h-36 rounded-full border border-white/[0.14]"></div>
+              <!-- Centre -->
+              <div class="relative z-10 flex flex-col items-center gap-3">
+                <div class="w-16 h-16 rounded-2xl bg-white/10 border border-white/10 flex items-center justify-center">
+                  ${icon}
+                </div>
+                <p class="text-white/80 text-sm font-semibold mt-1">${escHtml(cat.label)}</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="px-3 py-1.5 bg-black/25 border border-white/10 text-white/60 text-xs rounded-lg">
+                    ${post.readtime} min read
+                  </span>
+                  <span class="px-3 py-1.5 bg-black/25 border border-white/10 text-white/60 text-xs rounded-lg">
+                    ${formatDate(post.date)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      `;
+      observer.observe(container);
+    }
+
+    function renderPostCard(post) {
+      const cat = catConfig[post.category] || catConfig.qa;
+      const article = document.createElement('article');
+      article.className = 'blog-card bg-white border border-zinc-200 rounded-2xl overflow-hidden cursor-pointer flex flex-col';
+      article.dataset.cat = post.category;
+      article.dataset.title = (post.title || '').toLowerCase();
+      article.dataset.excerpt = (post.excerpt || '').toLowerCase();
+      article.innerHTML = `
+        <div class="h-3 bg-gradient-to-r ${cat.gradient}"></div>
+        <div class="p-6 flex flex-col flex-1">
+          <div class="flex items-center justify-between mb-4">
+            <span class="${cat.pillClass} text-xs font-semibold px-2.5 py-1 rounded-lg border">${escHtml(cat.label)}</span>
+            <span class="text-zinc-400 text-xs">${formatDate(post.date)}</span>
+          </div>
+          <h2 class="font-heading font-bold text-zinc-950 text-lg leading-snug mb-3">${escHtml(post.title)}</h2>
+          <p class="text-zinc-500 text-sm leading-relaxed flex-1 mb-5">${escHtml(post.excerpt)}</p>
+          <div class="flex items-center justify-between pt-4 border-t border-zinc-100">
+            <div class="flex items-center gap-2 text-zinc-400 text-xs">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              ${post.readtime} min read
+            </div>
+            <span class="${cat.readColor} text-sm font-medium flex items-center gap-1 hover:gap-2 transition-all">
+              Read
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </span>
+          </div>
+        </div>
+      `;
+      if (post.slug) {
+        article.addEventListener('click', () => { window.location.href = post.slug; });
+      }
+      return article;
+    }
+
+    const PAGE_SIZE = 6;
+
+    function getPageNums(current, total) {
+      if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+      const set = new Set([1, total, current, current - 1, current + 1].filter(p => p >= 1 && p <= total));
+      const sorted = [...set].sort((a, b) => a - b);
+      const out = [];
+      for (let i = 0; i < sorted.length; i++) {
+        if (i > 0 && sorted[i] - sorted[i - 1] > 1) out.push('…');
+        out.push(sorted[i]);
+      }
+      return out;
+    }
+
+    function initFilter(postEls, total) {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      const emptyState = document.getElementById('empty-state');
+      const postCount = document.getElementById('post-count');
+      const paginationEl = document.getElementById('pagination');
+      const searchInput = document.getElementById('post-search');
+      const grid = document.getElementById('post-grid');
+
+      let activeFilter = 'all';
+      let searchQuery = '';
+      let currentPage = 1;
+
+      function renderPagination(totalFiltered, totalPages) {
+        if (!paginationEl) return;
+        if (totalPages <= 1) { paginationEl.innerHTML = ''; return; }
+
+        const mkBtn = (page, label, disabled, active) =>
+          `<button class="pg-btn${active ? ' pg-active' : ''}" data-page="${page}"${disabled ? ' disabled' : ''}>${label}</button>`;
+
+        let html = mkBtn(currentPage - 1,
+          `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>`,
+          currentPage === 1, false);
+
+        getPageNums(currentPage, totalPages).forEach(p => {
+          html += p === '…'
+            ? `<span class="pg-ellipsis">…</span>`
+            : mkBtn(p, p, false, p === currentPage);
+        });
+
+        html += mkBtn(currentPage + 1,
+          `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`,
+          currentPage === totalPages, false);
+
+        paginationEl.innerHTML = html;
+        paginationEl.querySelectorAll('button[data-page]:not([disabled])').forEach(b => {
+          b.addEventListener('click', () => {
+            currentPage = parseInt(b.dataset.page);
+            applyFilters();
+            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        });
+      }
+
+      function applyFilters() {
+        const filtered = postEls.filter(el => {
+          const catMatch = activeFilter === 'all' || el.dataset.cat === activeFilter;
+          const searchMatch = !searchQuery ||
+            el.dataset.title.includes(searchQuery) ||
+            el.dataset.excerpt.includes(searchQuery);
+          return catMatch && searchMatch;
+        });
+
+        const totalFiltered = filtered.length;
+        const totalPages = Math.max(1, Math.ceil(totalFiltered / PAGE_SIZE));
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        const start = (currentPage - 1) * PAGE_SIZE;
+        const end = start + PAGE_SIZE;
+
+        postEls.forEach(el => { el.style.display = 'none'; });
+        filtered.slice(start, end).forEach(el => { el.style.display = ''; });
+
+        emptyState.classList.toggle('hidden', totalFiltered > 0);
+
+        if (totalFiltered === 0) {
+          postCount.textContent = 'No posts found.';
+        } else if (!searchQuery && activeFilter === 'all' && totalPages === 1) {
+          postCount.textContent = `Showing all ${totalFiltered} post${totalFiltered !== 1 ? 's' : ''}`;
+        } else {
+          const parts = [];
+          if (activeFilter !== 'all') parts.push(`in ${filterLabels[activeFilter]}`);
+          if (searchQuery) parts.push(`matching "${searchQuery}"`);
+          postCount.textContent = `Showing ${start + 1}–${Math.min(end, totalFiltered)} of ${totalFiltered} post${totalFiltered !== 1 ? 's' : ''}${parts.length ? ' ' + parts.join(' ') : ''}`;
+        }
+
+        renderPagination(totalFiltered, totalPages);
+      }
+
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          activeFilter = btn.dataset.filter;
+          currentPage = 1;
+          applyFilters();
+        });
+      });
+
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          searchQuery = searchInput.value.trim().toLowerCase();
+          currentPage = 1;
+          applyFilters();
+        });
+      }
+
+      applyFilters();
+    }
+
+    async function loadPosts() {
+      try {
+        const snap = await db.collection('posts').orderBy('date', 'desc').get();
+        const posts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        // Render featured post
+        const featured = posts.find(p => p.featured);
+        if (featured) {
+          renderFeaturedPost(featured);
+        } else {
+          document.getElementById('featured-section').style.display = 'none';
+        }
+
+        // Render post grid
+        const grid = document.getElementById('post-grid');
+        const loadingEl = document.getElementById('posts-loading');
+        if (loadingEl) loadingEl.remove();
+
+        if (posts.length === 0) {
+          document.getElementById('empty-state').classList.remove('hidden');
+          document.getElementById('post-count').textContent = 'No posts yet.';
+          return;
+        }
+
+        const articleEls = posts.map(post => {
+          const el = renderPostCard(post);
+          grid.appendChild(el);
+          return el;
+        });
+
+        initFilter(articleEls, posts.length);
+      } catch (err) {
+        console.error('Failed to load posts:', err);
+        const loadingEl = document.getElementById('posts-loading');
+        if (loadingEl) loadingEl.innerHTML = '<p class="text-zinc-400 text-sm">Could not load posts. Please try again later.</p>';
+      }
+    }
+
+    loadPosts();
   </script>
 </body>
 </html>

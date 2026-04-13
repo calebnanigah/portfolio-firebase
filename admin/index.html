@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Alex Rivera</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { heading: ['Archivo','sans-serif'], sans: ['Space Grotesk','sans-serif'] } } }
+    }
+  </script>
+  <style>
+    body { font-family: 'Space Grotesk', sans-serif; background: #FAFAFA; color: #09090B; }
+    .tab-btn { transition: all .2s ease; }
+    .tab-btn.active { background: #09090B; color: #fff; }
+    .form-input {
+      width: 100%; padding: .5rem .75rem; border: 1px solid #E4E4E7; border-radius: .5rem;
+      font-size: .875rem; font-family: 'Space Grotesk', sans-serif; background: #fff;
+      outline: none; transition: border-color .15s ease;
+    }
+    .form-input:focus { border-color: #09090B; }
+    .form-label { display: block; font-size: .75rem; font-weight: 600; color: #52525B; margin-bottom: .35rem; text-transform: uppercase; letter-spacing: .05em; }
+    .btn-primary { background: #09090B; color: #fff; padding: .5rem 1.25rem; border-radius: .625rem; font-size: .875rem; font-weight: 600; cursor: pointer; transition: background .15s ease; border: none; }
+    .btn-primary:hover { background: #27272A; }
+    .btn-secondary { background: #fff; color: #09090B; padding: .5rem 1.25rem; border-radius: .625rem; font-size: .875rem; font-weight: 600; cursor: pointer; transition: all .15s ease; border: 1px solid #E4E4E7; }
+    .btn-secondary:hover { border-color: #A1A1AA; }
+    .btn-danger { background: #FEF2F2; color: #B91C1C; padding: .375rem .75rem; border-radius: .5rem; font-size: .75rem; font-weight: 600; cursor: pointer; border: 1px solid #FECACA; transition: all .15s ease; }
+    .btn-danger:hover { background: #FEE2E2; }
+    .card { background: #fff; border: 1px solid #E4E4E7; border-radius: 1rem; }
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999; padding: .75rem 1.25rem; border-radius: .75rem; font-size: .875rem; font-weight: 500; box-shadow: 0 8px 24px -4px rgba(0,0,0,.15); transition: opacity .3s ease, transform .3s ease; }
+    .toast-success { background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; }
+    .toast-error { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
+    .toast.hide { opacity: 0; transform: translateY(.5rem); }
+    #loading-overlay { position: fixed; inset: 0; background: #FAFAFA; display: flex; align-items: center; justify-content: center; z-index: 100; }
+    .spinner { width: 2rem; height: 2rem; border: 2.5px solid #E4E4E7; border-top-color: #09090B; border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .star-btn { cursor: pointer; font-size: 1.125rem; color: #D4D4D8; transition: color .1s ease; }
+    .star-btn.active { color: #FBBF24; }
+    /* Quill editor overrides */
+    .ql-toolbar.ql-snow { border: 1px solid #E4E4E7; border-bottom: none; border-radius: .5rem .5rem 0 0; background: #F9F9F9; font-family: 'Space Grotesk', sans-serif; }
+    .ql-container.ql-snow { border: 1px solid #E4E4E7; border-radius: 0 0 .5rem .5rem; font-family: 'Space Grotesk', sans-serif; font-size: .9375rem; }
+    .ql-editor { min-height: 420px; line-height: 1.8; color: #3F3F46; }
+    .ql-editor:focus { outline: none; }
+    .ql-editor h1, .ql-editor h2, .ql-editor h3 { font-family: 'Archivo', sans-serif; color: #09090B; font-weight: 700; }
+    .ql-editor h1 { font-size: 1.75rem; margin-bottom: .5rem; }
+    .ql-editor h2 { font-size: 1.375rem; margin-bottom: .5rem; }
+    .ql-editor h3 { font-size: 1.125rem; margin-bottom: .5rem; }
+    .ql-editor p { margin-bottom: 1rem; }
+    .ql-editor blockquote { border-left: 3px solid #059669; padding-left: 1rem; color: #52525B; font-style: italic; margin: 1rem 0; }
+    .ql-editor pre { background: #18181B; color: #E4E4E7; padding: 1rem 1.25rem; border-radius: .5rem; font-size: .8125rem; }
+    .ql-editor a { color: #059669; }
+    /* Tag pills in write form */
+    .tag-pill { display:inline-flex; align-items:center; gap:.3rem; background:#F4F4F5; color:#3F3F46; border:1px solid #E4E4E7; border-radius:9999px; padding:.2rem .6rem; font-size:.75rem; font-weight:500; white-space:nowrap; }
+    .tag-pill button { display:flex; align-items:center; color:#A1A1AA; cursor:pointer; background:none; border:none; padding:0; line-height:1; }
+    .tag-pill button:hover { color:#09090B; }
+    #write-tags-input-wrap:focus-within { border-color:#09090B; }
+    /* Status toggle */
+    .status-toggle { display: flex; gap: .5rem; }
+    .status-toggle button { padding: .375rem 1rem; border-radius: .5rem; font-size: .8125rem; font-weight: 600; cursor: pointer; border: 1px solid #E4E4E7; transition: all .15s ease; }
+    .status-toggle button.selected-draft { background: #FFF7ED; color: #C2410C; border-color: #FED7AA; }
+    .status-toggle button.selected-published { background: #F0FDF4; color: #15803D; border-color: #BBF7D0; }
+  </style>
+</head>
+<body class="antialiased min-h-screen">
+
+  <!-- Loading overlay -->
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       LOGIN SCREEN
+  ══════════════════════════════════════════════ -->
+  <div id="login-screen" class="hidden min-h-screen flex items-center justify-center px-4">
+    <div class="w-full max-w-sm">
+      <div class="text-center mb-8">
+        <a href="../index.html" class="font-heading font-bold text-zinc-950 text-2xl tracking-tight">AR</a>
+        <p class="text-zinc-500 text-sm mt-2">Admin Panel</p>
+      </div>
+      <div class="card p-8">
+        <h1 class="font-heading font-bold text-zinc-950 text-xl mb-6">Sign in</h1>
+        <div class="space-y-4">
+          <div>
+            <label class="form-label">Email</label>
+            <input id="login-email" type="email" class="form-input" placeholder="admin@example.com" />
+          </div>
+          <div>
+            <label class="form-label">Password</label>
+            <input id="login-password" type="password" class="form-input" placeholder="••••••••" />
+          </div>
+          <p id="login-error" class="hidden text-red-600 text-sm"></p>
+          <button id="login-btn" class="btn-primary w-full mt-2">Sign in</button>
+        </div>
+      </div>
+      <p class="text-center text-zinc-400 text-xs mt-6">
+        <a href="../index.html" class="hover:text-zinc-700 transition-colors">← Back to site</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       DASHBOARD
+  ══════════════════════════════════════════════ -->
+  <div id="dashboard" class="hidden">
+
+    <!-- Top nav -->
+    <nav class="sticky top-0 z-50 bg-white border-b border-zinc-200 px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <a href="../index.html" class="font-heading font-bold text-zinc-950 text-lg tracking-tight">AR</a>
+        <span class="text-zinc-300">|</span>
+        <span class="text-zinc-500 text-sm font-medium">Admin</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="admin-email" class="text-zinc-400 text-xs hidden sm:block"></span>
+        <a href="../index.html" target="_blank" class="btn-secondary text-xs px-3 py-1.5">View site</a>
+        <button id="logout-btn" class="btn-secondary text-xs px-3 py-1.5">Sign out</button>
+      </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+
+      <!-- Page title -->
+      <div class="mb-8">
+        <h1 class="font-heading font-bold text-zinc-950 text-3xl">Content Manager</h1>
+        <p class="text-zinc-500 text-sm mt-1">Add and manage blog posts and books.</p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex gap-2 mb-8 border-b border-zinc-200 pb-0">
+        <button id="tab-posts" class="tab-btn active px-5 py-2.5 rounded-t-xl text-sm font-semibold border border-zinc-200 border-b-0 -mb-px bg-zinc-950 text-white" onclick="switchTab('posts')">
+          Posts
+          <span id="posts-count" class="ml-2 text-xs bg-zinc-700 text-zinc-200 px-1.5 py-0.5 rounded-full">0</span>
+        </button>
+        <button id="tab-books" class="tab-btn px-5 py-2.5 rounded-t-xl text-sm font-semibold border border-zinc-200 border-b-0 -mb-px text-zinc-500 hover:text-zinc-900" onclick="switchTab('books')">
+          Books
+          <span id="books-count" class="ml-2 text-xs bg-zinc-100 text-zinc-500 px-1.5 py-0.5 rounded-full">0</span>
+        </button>
+        <button id="tab-write" class="tab-btn px-5 py-2.5 rounded-t-xl text-sm font-semibold border border-zinc-200 border-b-0 -mb-px text-zinc-500 hover:text-zinc-900" onclick="switchTab('write')">
+          ✍ Write Post
+        </button>
+      </div>
+
+      <!-- ─── POSTS PANEL ─────────────────────────── -->
+      <div id="panel-posts">
+
+        <!-- Add post form -->
+        <div class="card p-6 mb-6">
+          <h2 class="font-heading font-bold text-zinc-950 text-base mb-5" id="post-form-title">Add New Post</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2">
+              <label class="form-label">Title *</label>
+              <input id="post-title" type="text" class="form-input" placeholder="Post title..." oninput="autoSlug()" />
+            </div>
+            <div>
+              <label class="form-label">Slug (filename) *</label>
+              <input id="post-slug" type="text" class="form-input" placeholder="post-your-title.html" />
+            </div>
+            <div>
+              <label class="form-label">Category *</label>
+              <select id="post-category" class="form-input">
+                <option value="">Select category</option>
+                <option value="qa">QA Testing</option>
+                <option value="cyber">Cybersecurity</option>
+                <option value="petro">Petroleum Eng.</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Date *</label>
+              <input id="post-date" type="date" class="form-input" />
+            </div>
+            <div>
+              <label class="form-label">Read Time (minutes) *</label>
+              <input id="post-readtime" type="number" min="1" max="60" class="form-input" placeholder="8" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="form-label">Excerpt *</label>
+              <textarea id="post-excerpt" class="form-input" rows="3" placeholder="Short description shown on the blog listing..."></textarea>
+            </div>
+            <div>
+              <label class="form-label">Banner Gradient</label>
+              <select id="post-gradient" class="form-input">
+                <option value="from-blue-500 to-indigo-600">Blue → Indigo (QA)</option>
+                <option value="from-orange-500 to-red-600">Orange → Red (Cyber)</option>
+                <option value="from-emerald-500 to-teal-600">Emerald → Teal (Petro)</option>
+                <option value="from-violet-500 to-purple-700">Violet → Purple</option>
+                <option value="from-zinc-700 to-zinc-900">Zinc dark</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-3 pt-6">
+              <input id="post-featured" type="checkbox" class="w-4 h-4 accent-zinc-950 cursor-pointer" />
+              <label for="post-featured" class="text-sm font-medium text-zinc-700 cursor-pointer">Mark as featured post</label>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 mt-5">
+            <button id="post-save-btn" class="btn-primary" onclick="savePost()">Save Post</button>
+            <button id="post-cancel-btn" class="btn-secondary hidden" onclick="cancelPostEdit()">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Posts list -->
+        <div class="card overflow-hidden">
+          <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+            <h2 class="font-heading font-semibold text-zinc-950 text-sm">All Posts</h2>
+            <span id="posts-list-count" class="text-zinc-400 text-xs"></span>
+          </div>
+          <div id="posts-list" class="divide-y divide-zinc-100">
+            <div class="px-6 py-10 text-center text-zinc-400 text-sm">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── BOOKS PANEL ─────────────────────────── -->
+      <div id="panel-books" class="hidden">
+
+        <!-- Add book form -->
+        <div class="card p-6 mb-6">
+          <h2 class="font-heading font-bold text-zinc-950 text-base mb-5" id="book-form-title">Add New Book</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label">Title *</label>
+              <input id="book-title" type="text" class="form-input" placeholder="Book title..." />
+            </div>
+            <div>
+              <label class="form-label">Author *</label>
+              <input id="book-author" type="text" class="form-input" placeholder="Author name..." />
+            </div>
+            <div>
+              <label class="form-label">Year Published</label>
+              <input id="book-year" type="number" min="1800" max="2099" class="form-input" placeholder="2024" />
+            </div>
+            <div>
+              <label class="form-label">Status *</label>
+              <select id="book-status" class="form-input" onchange="toggleProgress()">
+                <option value="">Select status</option>
+                <option value="reading">Currently Reading</option>
+                <option value="finished">Finished</option>
+                <option value="next">Up Next</option>
+              </select>
+            </div>
+            <div id="progress-field">
+              <label class="form-label">Progress (%)</label>
+              <input id="book-progress" type="number" min="0" max="100" class="form-input" placeholder="0" />
+            </div>
+            <div>
+              <label class="form-label">Rating (1–5)</label>
+              <div id="star-rating" class="flex gap-1 mt-1">
+                <span class="star-btn" data-v="1" onclick="setRating(1)">★</span>
+                <span class="star-btn" data-v="2" onclick="setRating(2)">★</span>
+                <span class="star-btn" data-v="3" onclick="setRating(3)">★</span>
+                <span class="star-btn" data-v="4" onclick="setRating(4)">★</span>
+                <span class="star-btn" data-v="5" onclick="setRating(5)">★</span>
+              </div>
+              <input id="book-rating" type="hidden" value="" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="form-label">Tags (comma separated)</label>
+              <input id="book-tags" type="text" class="form-input" placeholder="engineering, productivity, science" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="form-label">Personal Note</label>
+              <textarea id="book-note" class="form-input" rows="2" placeholder="Your thoughts on this book..."></textarea>
+            </div>
+            <div>
+              <label class="form-label">Cover Gradient</label>
+              <select id="book-color" class="form-input">
+                <option value="from-blue-500 to-indigo-600">Blue → Indigo</option>
+                <option value="from-emerald-500 to-teal-600">Emerald → Teal</option>
+                <option value="from-orange-500 to-red-600">Orange → Red</option>
+                <option value="from-violet-500 to-purple-700">Violet → Purple</option>
+                <option value="from-zinc-700 to-zinc-900">Zinc dark</option>
+                <option value="from-rose-500 to-pink-600">Rose → Pink</option>
+                <option value="from-amber-400 to-orange-500">Amber → Orange</option>
+                <option value="from-sky-500 to-blue-600">Sky → Blue</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center gap-3 mt-5">
+            <button id="book-save-btn" class="btn-primary" onclick="saveBook()">Save Book</button>
+            <button id="book-cancel-btn" class="btn-secondary hidden" onclick="cancelBookEdit()">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Books list -->
+        <div class="card overflow-hidden">
+          <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+            <h2 class="font-heading font-semibold text-zinc-950 text-sm">All Books</h2>
+            <span id="books-list-count" class="text-zinc-400 text-xs"></span>
+          </div>
+          <div id="books-list" class="divide-y divide-zinc-100">
+            <div class="px-6 py-10 text-center text-zinc-400 text-sm">Loading...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── WRITE PANEL ────────────────────────── -->
+      <div id="panel-write" class="hidden">
+
+        <!-- Metadata bar -->
+        <div class="card p-6 mb-5">
+          <div class="flex items-center justify-between mb-5">
+            <h2 class="font-heading font-bold text-zinc-950 text-base" id="write-form-title">New Article</h2>
+            <div class="status-toggle">
+              <button id="status-draft" class="selected-draft" onclick="setWriteStatus('draft')">Draft</button>
+              <button id="status-published" onclick="setWriteStatus('published')">Publish</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="lg:col-span-2">
+              <label class="form-label">Title *</label>
+              <input id="write-title" type="text" class="form-input text-base font-semibold" placeholder="Article title..." />
+            </div>
+            <div>
+              <label class="form-label">Category *</label>
+              <select id="write-category" class="form-input">
+                <option value="">Select category</option>
+                <option value="qa">QA Testing</option>
+                <option value="cyber">Cybersecurity</option>
+                <option value="petro">Petroleum Eng.</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Date *</label>
+              <input id="write-date" type="date" class="form-input" />
+            </div>
+            <div>
+              <label class="form-label">Read Time (minutes)</label>
+              <input id="write-readtime" type="number" min="1" max="60" class="form-input" placeholder="Auto-estimate" />
+            </div>
+            <div>
+              <label class="form-label">Banner Gradient</label>
+              <select id="write-gradient" class="form-input">
+                <option value="from-blue-500 to-indigo-600">Blue → Indigo (QA)</option>
+                <option value="from-orange-500 to-red-600">Orange → Red (Cyber)</option>
+                <option value="from-emerald-500 to-teal-600">Emerald → Teal (Petro)</option>
+                <option value="from-violet-500 to-purple-700">Violet → Purple</option>
+                <option value="from-zinc-700 to-zinc-900">Zinc dark</option>
+              </select>
+            </div>
+            <div class="lg:col-span-3">
+              <label class="form-label">Excerpt *</label>
+              <textarea id="write-excerpt" class="form-input" rows="2" placeholder="Short summary shown on the blog listing..."></textarea>
+            </div>
+            <div class="lg:col-span-2">
+              <div class="flex items-center justify-between mb-1">
+                <label class="form-label" style="margin-bottom:0">Tags</label>
+                <button type="button" onclick="autoGenerateTags()" class="text-xs text-emerald-600 font-semibold hover:text-emerald-800 transition-colors flex items-center gap-1">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/><path d="M18 2v4h4"/></svg>
+                  Auto-generate
+                </button>
+              </div>
+              <div id="write-tags-input-wrap" class="flex flex-wrap items-center gap-1.5 min-h-[2.375rem] px-2.5 py-1.5 border border-zinc-200 rounded-lg bg-white cursor-text" onclick="document.getElementById('write-tag-input').focus()">
+                <div id="write-tags-pills" class="contents"></div>
+                <input id="write-tag-input" type="text" placeholder="Add tag, press Enter…" class="flex-1 min-w-[120px] outline-none text-sm font-medium text-zinc-700 bg-transparent placeholder-zinc-400" />
+              </div>
+              <input id="write-tags-hidden" type="hidden" value="" />
+            </div>
+            <div class="flex items-center gap-3 pt-5">
+              <input id="write-featured" type="checkbox" class="w-4 h-4 accent-zinc-950 cursor-pointer" />
+              <label for="write-featured" class="text-sm font-medium text-zinc-700 cursor-pointer">Featured post</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quill editor -->
+        <div class="card mb-5">
+          <div class="px-5 pt-4 pb-2 border-b border-zinc-100 flex items-center justify-between">
+            <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Content</span>
+            <span id="write-word-count" class="text-zinc-400 text-xs">0 words</span>
+          </div>
+          <div id="quill-editor"></div>
+        </div>
+
+        <!-- Action bar -->
+        <div class="flex flex-wrap items-center gap-3 pb-24">
+          <button class="btn-primary px-6" onclick="saveArticle()">
+            <span id="write-save-label">Save Draft</span>
+          </button>
+          <button id="write-preview-btn" class="btn-secondary" onclick="previewArticle()">Preview</button>
+          <button id="write-cancel-btn" class="btn-secondary hidden" onclick="cancelWriteEdit()">Cancel edit</button>
+          <span id="write-save-status" class="text-zinc-400 text-xs ml-auto"></span>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast notification -->
+  <div id="toast" class="toast hide"></div>
+
+  <!-- ══════════════════════════════════════════════
+       FIREBASE SDKs
+  ══════════════════════════════════════════════ -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+
+  <script>
+    // ══════════════════════════════════════════════
+    // FIREBASE CONFIG — replace with your project's values
+    // Get these from: Firebase Console → Project Settings → Your apps → Web app
+    // ══════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyBBDcdmekuIHZf79vU1F1WOqXuDqjZ8d-w",
+  authDomain: "calebnanigah-site.firebaseapp.com",
+  projectId: "calebnanigah-site",
+  storageBucket: "calebnanigah-site.firebasestorage.app",
+  messagingSenderId: "876084744507",
+  appId: "1:876084744507:web:cefcae92427150e0c5671e",
+  measurementId: "G-JR9EFB01Q8"
+};
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db   = firebase.firestore();
+
+    // ─── State ──────────────────────────────────
+    let editingPostId  = null;
+    let editingBookId  = null;
+    let editingWriteId = null;
+    let currentRating  = null;
+    let quill          = null;
+    let writeStatus    = 'draft';
+
+    // ─── Auth state listener ────────────────────
+    auth.onAuthStateChanged(user => {
+      document.getElementById('loading-overlay').style.display = 'none';
+      if (user) {
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.getElementById('admin-email').textContent = user.email;
+        loadPosts();
+        loadBooks();
+      } else {
+        document.getElementById('login-screen').classList.remove('hidden');
+        document.getElementById('dashboard').classList.add('hidden');
+      }
+    });
+
+    // ─── Login ──────────────────────────────────
+    document.getElementById('login-btn').addEventListener('click', async () => {
+      const email = document.getElementById('login-email').value.trim();
+      const pass  = document.getElementById('login-password').value;
+      const errEl = document.getElementById('login-error');
+      errEl.classList.add('hidden');
+      try {
+        await auth.signInWithEmailAndPassword(email, pass);
+      } catch (e) {
+        errEl.textContent = friendlyAuthError(e.code);
+        errEl.classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('login-password').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('login-btn').click();
+    });
+
+    // ─── Logout ─────────────────────────────────
+    document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+
+    // ─── Tabs ───────────────────────────────────
+    function switchTab(tab) {
+      const tabs = ['posts', 'books', 'write'];
+      tabs.forEach(t => {
+        document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+        document.getElementById(`tab-${t}`).classList.toggle('bg-zinc-950', t === tab);
+        document.getElementById(`tab-${t}`).classList.toggle('text-white', t === tab);
+        document.getElementById(`tab-${t}`).classList.toggle('text-zinc-500', t !== tab);
+        document.getElementById(`panel-${t}`).classList.toggle('hidden', t !== tab);
+      });
+      if (tab === 'write' && !quill) initQuill();
+    }
+
+    // ══════════════════════════════════════════════
+    // POSTS
+    // ══════════════════════════════════════════════
+
+    function autoSlug() {
+      const title = document.getElementById('post-title').value;
+      const slug  = 'post-' + title.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        + '.html';
+      document.getElementById('post-slug').value = slug;
+    }
+
+    async function savePost() {
+      const title    = document.getElementById('post-title').value.trim();
+      const slug     = document.getElementById('post-slug').value.trim();
+      const category = document.getElementById('post-category').value;
+      const date     = document.getElementById('post-date').value;
+      const readtime = parseInt(document.getElementById('post-readtime').value);
+      const excerpt  = document.getElementById('post-excerpt').value.trim();
+      const gradient = document.getElementById('post-gradient').value;
+      const featured = document.getElementById('post-featured').checked;
+
+      if (!title || !slug || !category || !date || !excerpt || !readtime) {
+        showToast('Please fill in all required fields.', 'error');
+        return;
+      }
+
+      const data = { title, slug, category, date, readtime, excerpt, gradient, featured, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+
+      try {
+        if (editingPostId) {
+          await db.collection('posts').doc(editingPostId).update(data);
+          showToast('Post updated.', 'success');
+          cancelPostEdit();
+        } else {
+          data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+          await db.collection('posts').add(data);
+          showToast('Post saved.', 'success');
+          clearPostForm();
+        }
+        loadPosts();
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+    }
+
+    function clearPostForm() {
+      ['post-title','post-slug','post-excerpt','post-readtime'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('post-category').value = '';
+      document.getElementById('post-gradient').value = 'from-blue-500 to-indigo-600';
+      document.getElementById('post-featured').checked = false;
+      document.getElementById('post-date').value = new Date().toISOString().split('T')[0];
+    }
+
+    function cancelPostEdit() {
+      editingPostId = null;
+      document.getElementById('post-form-title').textContent = 'Add New Post';
+      document.getElementById('post-save-btn').textContent = 'Save Post';
+      document.getElementById('post-cancel-btn').classList.add('hidden');
+      clearPostForm();
+    }
+
+    function editPost(id, data) {
+      editingPostId = id;
+      document.getElementById('post-title').value    = data.title;
+      document.getElementById('post-slug').value     = data.slug;
+      document.getElementById('post-category').value = data.category;
+      document.getElementById('post-date').value     = data.date;
+      document.getElementById('post-readtime').value = data.readtime;
+      document.getElementById('post-excerpt').value  = data.excerpt;
+      document.getElementById('post-gradient').value = data.gradient || 'from-blue-500 to-indigo-600';
+      document.getElementById('post-featured').checked = !!data.featured;
+      document.getElementById('post-form-title').textContent = 'Edit Post';
+      document.getElementById('post-save-btn').textContent = 'Update Post';
+      document.getElementById('post-cancel-btn').classList.remove('hidden');
+      switchTab('posts');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function deletePost(id, title) {
+      if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+      try {
+        await db.collection('posts').doc(id).delete();
+        showToast('Post deleted.', 'success');
+        loadPosts();
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+    }
+
+    function loadPosts() {
+      db.collection('posts').orderBy('date', 'desc').onSnapshot(snapshot => {
+        const list  = document.getElementById('posts-list');
+        const count = snapshot.size;
+        document.getElementById('posts-count').textContent = count;
+        document.getElementById('posts-list-count').textContent = `${count} post${count !== 1 ? 's' : ''}`;
+
+        if (count === 0) {
+          list.innerHTML = '<div class="px-6 py-10 text-center text-zinc-400 text-sm">No posts yet. Add your first post above.</div>';
+          return;
+        }
+
+        const catLabel = { qa: 'QA Testing', cyber: 'Cybersecurity', petro: 'Petroleum Eng.' };
+        const catColor = { qa: 'bg-blue-50 text-blue-700', cyber: 'bg-orange-50 text-orange-700', petro: 'bg-emerald-50 text-emerald-700' };
+
+        list.innerHTML = snapshot.docs.map(doc => {
+          const d = doc.data();
+          return `
+            <div class="px-6 py-4 flex items-start sm:items-center justify-between gap-4 hover:bg-zinc-50/60 transition-colors">
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                  <span class="text-xs font-medium px-2 py-0.5 rounded-md ${catColor[d.category] || 'bg-zinc-100 text-zinc-600'}">${catLabel[d.category] || d.category}</span>
+                  ${d.featured ? '<span class="text-xs font-medium px-2 py-0.5 rounded-md bg-amber-50 text-amber-700">Featured</span>' : ''}
+                  ${d.content ? (d.status === 'published' ? '<span class="text-xs font-medium px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700">Published</span>' : '<span class="text-xs font-medium px-2 py-0.5 rounded-md bg-orange-50 text-orange-700">Draft</span>') : ''}
+                  <span class="text-zinc-400 text-xs">${d.date}</span>
+                  <span class="text-zinc-400 text-xs">${d.readtime} min read</span>
+                </div>
+                <p class="font-heading font-semibold text-zinc-950 text-sm truncate">${d.title}</p>
+                <p class="text-zinc-400 text-xs mt-0.5 truncate">${d.slug}</p>
+              </div>
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <a href="${d.slug}" target="_blank" class="btn-secondary text-xs px-3 py-1.5">View</a>
+                <button class="btn-secondary text-xs px-3 py-1.5" onclick='openWriteTab("${doc.id}", ${JSON.stringify(d).replace(/'/g, "&#39;")})'>✍ Write</button>
+                <button class="btn-secondary text-xs px-3 py-1.5" onclick='editPost("${doc.id}", ${JSON.stringify(d).replace(/'/g, "&#39;")})'>Edit</button>
+                <button class="btn-danger" onclick='deletePost("${doc.id}", "${d.title.replace(/"/g, '&quot;')}")'>Delete</button>
+              </div>
+            </div>`;
+        }).join('');
+      }, err => showToast('Failed to load posts: ' + err.message, 'error'));
+    }
+
+    // ══════════════════════════════════════════════
+    // BOOKS
+    // ══════════════════════════════════════════════
+
+    function setRating(val) {
+      currentRating = val;
+      document.getElementById('book-rating').value = val;
+      document.querySelectorAll('.star-btn').forEach(s => {
+        s.classList.toggle('active', parseInt(s.dataset.v) <= val);
+      });
+    }
+
+    function clearRating() {
+      currentRating = null;
+      document.getElementById('book-rating').value = '';
+      document.querySelectorAll('.star-btn').forEach(s => s.classList.remove('active'));
+    }
+
+    function toggleProgress() {
+      const status = document.getElementById('book-status').value;
+      const field  = document.getElementById('progress-field');
+      field.style.opacity = status === 'next' ? '0.4' : '1';
+      if (status === 'finished') document.getElementById('book-progress').value = 100;
+      if (status === 'next')     document.getElementById('book-progress').value = 0;
+    }
+
+    async function saveBook() {
+      const title    = document.getElementById('book-title').value.trim();
+      const author   = document.getElementById('book-author').value.trim();
+      const year     = parseInt(document.getElementById('book-year').value) || null;
+      const status   = document.getElementById('book-status').value;
+      const progress = parseInt(document.getElementById('book-progress').value) || 0;
+      const rating   = document.getElementById('book-rating').value ? parseInt(document.getElementById('book-rating').value) : null;
+      const tagsRaw  = document.getElementById('book-tags').value;
+      const tags     = tagsRaw.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+      const note     = document.getElementById('book-note').value.trim();
+      const color    = document.getElementById('book-color').value;
+
+      if (!title || !author || !status) {
+        showToast('Please fill in title, author, and status.', 'error');
+        return;
+      }
+
+      const data = { title, author, year, status, progress, rating, tags, note, color, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+
+      try {
+        if (editingBookId) {
+          await db.collection('books').doc(editingBookId).update(data);
+          showToast('Book updated.', 'success');
+          cancelBookEdit();
+        } else {
+          data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+          await db.collection('books').add(data);
+          showToast('Book saved.', 'success');
+          clearBookForm();
+        }
+        loadBooks();
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+    }
+
+    function clearBookForm() {
+      ['book-title','book-author','book-year','book-tags','book-note'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('book-status').value   = '';
+      document.getElementById('book-progress').value = '';
+      document.getElementById('book-color').value    = 'from-blue-500 to-indigo-600';
+      clearRating();
+    }
+
+    function cancelBookEdit() {
+      editingBookId = null;
+      document.getElementById('book-form-title').textContent = 'Add New Book';
+      document.getElementById('book-save-btn').textContent = 'Save Book';
+      document.getElementById('book-cancel-btn').classList.add('hidden');
+      clearBookForm();
+    }
+
+    function editBook(id, data) {
+      editingBookId = id;
+      document.getElementById('book-title').value    = data.title;
+      document.getElementById('book-author').value   = data.author;
+      document.getElementById('book-year').value     = data.year || '';
+      document.getElementById('book-status').value   = data.status;
+      document.getElementById('book-progress').value = data.progress || 0;
+      document.getElementById('book-tags').value     = (data.tags || []).join(', ');
+      document.getElementById('book-note').value     = data.note || '';
+      document.getElementById('book-color').value    = data.color || 'from-blue-500 to-indigo-600';
+      if (data.rating) setRating(data.rating); else clearRating();
+      toggleProgress();
+      document.getElementById('book-form-title').textContent = 'Edit Book';
+      document.getElementById('book-save-btn').textContent = 'Update Book';
+      document.getElementById('book-cancel-btn').classList.remove('hidden');
+      switchTab('books');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function deleteBook(id, title) {
+      if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+      try {
+        await db.collection('books').doc(id).delete();
+        showToast('Book deleted.', 'success');
+        loadBooks();
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+    }
+
+    function loadBooks() {
+      db.collection('books').orderBy('createdAt', 'desc').onSnapshot(snapshot => {
+        const list  = document.getElementById('books-list');
+        const count = snapshot.size;
+        document.getElementById('books-count').textContent = count;
+        document.getElementById('books-list-count').textContent = `${count} book${count !== 1 ? 's' : ''}`;
+
+        if (count === 0) {
+          list.innerHTML = '<div class="px-6 py-10 text-center text-zinc-400 text-sm">No books yet. Add your first book above.</div>';
+          return;
+        }
+
+        const statusBadge = {
+          reading:  'bg-blue-50 text-blue-700',
+          finished: 'bg-emerald-50 text-emerald-700',
+          next:     'bg-orange-50 text-orange-700'
+        };
+        const statusLabel = { reading: 'Reading', finished: 'Finished', next: 'Up Next' };
+
+        list.innerHTML = snapshot.docs.map(doc => {
+          const d    = doc.data();
+          const stars = d.rating ? '★'.repeat(d.rating) + '☆'.repeat(5 - d.rating) : '—';
+          return `
+            <div class="px-6 py-4 flex items-start sm:items-center justify-between gap-4 hover:bg-zinc-50/60 transition-colors">
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                  <span class="text-xs font-medium px-2 py-0.5 rounded-md ${statusBadge[d.status] || 'bg-zinc-100 text-zinc-500'}">${statusLabel[d.status] || d.status}</span>
+                  <span class="text-amber-500 text-xs tracking-tighter">${stars}</span>
+                  ${d.year ? `<span class="text-zinc-400 text-xs">${d.year}</span>` : ''}
+                </div>
+                <p class="font-heading font-semibold text-zinc-950 text-sm">${d.title}</p>
+                <p class="text-zinc-400 text-xs">${d.author}${d.tags?.length ? ' · ' + d.tags.join(', ') : ''}</p>
+              </div>
+              <div class="flex items-center gap-2 flex-shrink-0">
+                <button class="btn-secondary text-xs px-3 py-1.5" onclick='editBook("${doc.id}", ${JSON.stringify(d).replace(/'/g, "&#39;")})'>Edit</button>
+                <button class="btn-danger" onclick='deleteBook("${doc.id}", "${d.title.replace(/"/g, '&quot;')}")'>Delete</button>
+              </div>
+            </div>`;
+        }).join('');
+      }, err => showToast('Failed to load books: ' + err.message, 'error'));
+    }
+
+    // ══════════════════════════════════════════════
+    // UTILITIES
+    // ══════════════════════════════════════════════
+
+    function showToast(msg, type = 'success') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast toast-${type}`;
+      setTimeout(() => t.classList.add('hide'), 3000);
+    }
+
+    function friendlyAuthError(code) {
+      const map = {
+        'auth/invalid-email':        'Invalid email address.',
+        'auth/user-not-found':       'No account found with this email.',
+        'auth/wrong-password':       'Incorrect password.',
+        'auth/invalid-credential':   'Invalid email or password.',
+        'auth/too-many-requests':    'Too many attempts. Try again later.',
+      };
+      return map[code] || 'Sign in failed. Check your credentials.';
+    }
+
+    // Set today's date as default for new posts
+    document.getElementById('post-date').value = new Date().toISOString().split('T')[0];
+
+    // ══════════════════════════════════════════════
+    // WRITE / WYSIWYG
+    // ══════════════════════════════════════════════
+
+    function initQuill() {
+      quill = new Quill('#quill-editor', {
+        theme: 'snow',
+        placeholder: 'Start writing your article...',
+        modules: {
+          toolbar: [
+            [{ header: [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            ['blockquote', 'code-block'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['link', 'image'],
+            [{ align: [] }],
+            ['clean']
+          ]
+        }
+      });
+
+      // Word count
+      quill.on('text-change', () => {
+        const text  = quill.getText().trim();
+        const words = text ? text.split(/\s+/).length : 0;
+        document.getElementById('write-word-count').textContent = `${words} word${words !== 1 ? 's' : ''}`;
+        // Auto-estimate read time (200 wpm)
+        const mins = Math.max(1, Math.round(words / 200));
+        if (!document.getElementById('write-readtime').value) {
+          document.getElementById('write-readtime').placeholder = `~${mins} min (estimated)`;
+        }
+      });
+
+      // Set today's date
+      document.getElementById('write-date').value = new Date().toISOString().split('T')[0];
+    }
+
+    function setWriteStatus(val) {
+      writeStatus = val;
+      document.getElementById('status-draft').className     = val === 'draft'     ? 'selected-draft'     : '';
+      document.getElementById('status-published').className = val === 'published' ? 'selected-published' : '';
+      document.getElementById('write-save-label').textContent = val === 'published' ? 'Publish' : 'Save Draft';
+    }
+
+    async function saveArticle() {
+      const title    = document.getElementById('write-title').value.trim();
+      const category = document.getElementById('write-category').value;
+      const date     = document.getElementById('write-date').value;
+      const excerpt  = document.getElementById('write-excerpt').value.trim();
+      const gradient = document.getElementById('write-gradient').value;
+      const featured = document.getElementById('write-featured').checked;
+      const readtimeVal = parseInt(document.getElementById('write-readtime').value);
+      const content  = quill ? quill.root.innerHTML : '';
+      const text     = quill ? quill.getText().trim() : '';
+      const words    = text ? text.split(/\s+/).length : 0;
+      const readtime = readtimeVal || Math.max(1, Math.round(words / 200));
+
+      if (!title || !category || !date || !excerpt) {
+        showToast('Fill in title, category, date, and excerpt.', 'error');
+        return;
+      }
+      if (!text || text.length < 10) {
+        showToast('Article content is empty.', 'error');
+        return;
+      }
+
+      const slug = '../post.html?id=' + (editingWriteId || '__NEW__');
+      const statusEl = document.getElementById('write-save-status');
+      statusEl.textContent = 'Saving…';
+
+      const data = {
+        title, category, date, excerpt, gradient, featured, tags: [...writeTags],
+        readtime, content, status: writeStatus, wordCount: words,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      try {
+        let docId;
+        if (editingWriteId) {
+          await db.collection('posts').doc(editingWriteId).update(data);
+          docId = editingWriteId;
+          showToast(writeStatus === 'published' ? 'Published!' : 'Draft saved.', 'success');
+        } else {
+          data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+          data.slug = '../post.html'; // will be updated with ID below
+          const ref = await db.collection('posts').add(data);
+          docId = ref.id;
+          // Store the real URL with the doc ID
+          await ref.update({ slug: `../post.html?id=${docId}` });
+          showToast(writeStatus === 'published' ? 'Published!' : 'Draft saved.', 'success');
+          editingWriteId = docId;
+          document.getElementById('write-cancel-btn').classList.remove('hidden');
+          document.getElementById('write-form-title').textContent = 'Editing: ' + title;
+        }
+        statusEl.textContent = 'Saved ' + new Date().toLocaleTimeString();
+        loadPosts();
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+        statusEl.textContent = '';
+      }
+    }
+
+    function previewArticle() {
+      if (!editingWriteId) {
+        showToast('Save the article first to preview it.', 'error');
+        return;
+      }
+      window.open(`../post.html?id=${editingWriteId}`, '_blank');
+    }
+
+    function openWriteTab(id, data) {
+      switchTab('write');
+      if (!quill) initQuill();
+      editingWriteId = id;
+      document.getElementById('write-title').value    = data.title    || '';
+      document.getElementById('write-category').value = data.category || '';
+      document.getElementById('write-date').value     = data.date     || '';
+      document.getElementById('write-excerpt').value  = data.excerpt  || '';
+      document.getElementById('write-gradient').value = data.gradient || 'from-blue-500 to-indigo-600';
+      document.getElementById('write-featured').checked = !!data.featured;
+      document.getElementById('write-readtime').value = data.readtime || '';
+      writeTags = Array.isArray(data.tags) ? [...data.tags] : [];
+      renderTagPills();
+      setWriteStatus(data.status || 'draft');
+      setTimeout(() => {
+        if (data.content) quill.root.innerHTML = data.content;
+        else quill.setText('');
+      }, 50);
+      document.getElementById('write-form-title').textContent = 'Editing: ' + data.title;
+      document.getElementById('write-cancel-btn').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── Tags ────────────────────────────────────────────────────────────────
+    let writeTags = [];
+
+    function renderTagPills() {
+      const container = document.getElementById('write-tags-pills');
+      container.innerHTML = writeTags.map((tag, i) => `
+        <span class="tag-pill">
+          ${tag}
+          <button type="button" onclick="removeTag(${i})" aria-label="Remove ${tag}">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </span>`).join('');
+      document.getElementById('write-tags-hidden').value = writeTags.join(',');
+    }
+
+    function addTag(raw) {
+      const tag = raw.trim().toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+      if (!tag || writeTags.includes(tag) || writeTags.length >= 8) return;
+      writeTags.push(tag);
+      renderTagPills();
+    }
+
+    function removeTag(i) {
+      writeTags.splice(i, 1);
+      renderTagPills();
+    }
+
+    // Keyword bank for auto-generation
+    const TAG_BANK = {
+      // QA
+      'testing':['testing'], 'test':['testing'], 'qa':['qa'], 'quality':['qa'],
+      'playwright':['playwright','testing'], 'cypress':['cypress','testing'],
+      'selenium':['selenium','testing'], 'pact':['contract-testing','testing'],
+      'contract':['contract-testing'], 'e2e':['e2e'], 'unit test':['unit-testing'],
+      'integration':['integration-testing'], 'performance':['performance'],
+      'load test':['load-testing'], 'k6':['k6','performance'], 'flak':['flaky-tests'],
+      'shift-left':['shift-left'], 'shift left':['shift-left'], 'tdd':['tdd'],
+      'bdd':['bdd'], 'api test':['api-testing'], 'automation':['automation'],
+      // Security / Cyber
+      'security':['security'], 'cyber':['cybersecurity'], 'owasp':['owasp','security'],
+      'zero trust':['zero-trust','security'], 'pentest':['pentesting'],
+      'vulnerabilit':['vulnerability'], 'threat':['threat-modeling'],
+      'stride':['stride','threat-modeling'], 'secrets':['secrets-management'],
+      'encryption':['encryption'], 'auth':['authentication'], 'jwt':['jwt'],
+      'xss':['xss'], 'sql injection':['sql-injection'], 'csrf':['csrf'],
+      // Petroleum / Engineering
+      'reservoir':['reservoir-engineering'], 'petroleum':['petroleum-engineering'],
+      'digital twin':['digital-twins'], 'simulation':['simulation'],
+      'eclipse':['eclipse-simulator'], 'well log':['well-logging'],
+      'machine learning':['machine-learning','ai'], 'ml':['machine-learning'],
+      // General
+      'cloud':['cloud'], 'docker':['docker'], 'kubernetes':['kubernetes'],
+      'ci/cd':['ci-cd'], 'devops':['devops'], 'api':['api'],
+      'microservice':['microservices'], 'typescript':['typescript'],
+      'javascript':['javascript'], 'python':['python'], 'node':['nodejs'],
+    };
+
+    const CATEGORY_TAGS = {
+      qa:    ['qa','testing'],
+      cyber: ['cybersecurity','security'],
+      petro: ['petroleum-engineering'],
+    };
+
+    function autoGenerateTags() {
+      const title    = document.getElementById('write-title').value.toLowerCase();
+      const excerpt  = document.getElementById('write-excerpt').value.toLowerCase();
+      const category = document.getElementById('write-category').value;
+      const body     = quill ? quill.getText().toLowerCase() : '';
+      const combined = `${title} ${excerpt} ${body}`;
+
+      const found = new Set(writeTags);
+
+      // Category defaults
+      (CATEGORY_TAGS[category] || []).forEach(t => found.add(t));
+
+      // Keyword scan
+      for (const [keyword, tags] of Object.entries(TAG_BANK)) {
+        if (combined.includes(keyword)) tags.forEach(t => found.add(t));
+      }
+
+      writeTags = [...found].slice(0, 8);
+      renderTagPills();
+      showToast(`Generated ${writeTags.length} tag${writeTags.length !== 1 ? 's' : ''}.`, 'success');
+    }
+
+    // Enter / comma key handler for tag input
+    document.addEventListener('DOMContentLoaded', () => {
+      const inp = document.getElementById('write-tag-input');
+      if (!inp) return;
+      inp.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ',') {
+          e.preventDefault();
+          addTag(inp.value);
+          inp.value = '';
+        } else if (e.key === 'Backspace' && !inp.value && writeTags.length) {
+          removeTag(writeTags.length - 1);
+        }
+      });
+    });
+
+    function cancelWriteEdit() {
+      editingWriteId = null;
+      document.getElementById('write-form-title').textContent = 'New Article';
+      document.getElementById('write-title').value    = '';
+      document.getElementById('write-category').value = '';
+      document.getElementById('write-excerpt').value  = '';
+      document.getElementById('write-readtime').value = '';
+      document.getElementById('write-featured').checked = false;
+      document.getElementById('write-date').value = new Date().toISOString().split('T')[0];
+      document.getElementById('write-cancel-btn').classList.add('hidden');
+      document.getElementById('write-save-status').textContent = '';
+      writeTags = [];
+      renderTagPills();
+      setWriteStatus('draft');
+      if (quill) quill.setText('');
+    }
+  </script>
+
+</body>
+</html>

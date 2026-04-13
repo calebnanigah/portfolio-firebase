@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title id="page-title">Loading… — Alex Rivera</title>
+  <meta id="meta-desc" name="description" content="" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { heading: ['Archivo','sans-serif'], sans: ['Space Grotesk','sans-serif'] } } }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background-color: #FAFAFA; color: #09090B; font-family: 'Space Grotesk', sans-serif; }
+
+    [data-animate] { opacity:0; transform:translateY(2rem); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+    [data-animate].visible { opacity:1; transform:translateY(0); }
+    @media (prefers-reduced-motion:reduce) { [data-animate] { opacity:1; transform:none; transition:none; } }
+
+    #mobile-menu { transition: opacity .2s ease, transform .2s ease; }
+    #mobile-menu.hidden { opacity:0; pointer-events:none; transform:translateY(-8px); }
+    #mobile-menu.open { opacity:1; pointer-events:all; transform:translateY(0); display:block; }
+
+    /* Nav pills */
+    .nav-links a { padding:.375rem .75rem; border-radius:.75rem; font-size:.875rem; font-weight:500; color:#71717A; transition:background .15s ease,color .15s ease; white-space:nowrap; }
+    .nav-links a:hover { background:#F4F4F5; color:#09090B; }
+    .nav-links a.nav-active { background:#18181B; color:#fff; font-weight:600; }
+    .mobile-nav-active { background:#18181B !important; color:#fff !important; }
+
+    /* Prose */
+    .prose h1 { font-family:'Archivo',sans-serif; font-weight:800; font-size:2rem; color:#09090B; margin:2.5rem 0 .75rem; line-height:1.2; }
+    .prose h2 { font-family:'Archivo',sans-serif; font-weight:700; font-size:1.375rem; color:#09090B; margin:2.5rem 0 .75rem; line-height:1.3; }
+    .prose h3 { font-family:'Archivo',sans-serif; font-weight:600; font-size:1.125rem; color:#18181B; margin:2rem 0 .5rem; }
+    .prose p { color:#3F3F46; line-height:1.8; margin:0 0 1.25rem; font-size:1rem; }
+    .prose ul,.prose ol { color:#3F3F46; line-height:1.8; margin:0 0 1.25rem; padding-left:1.5rem; }
+    .prose li { margin-bottom:.4rem; }
+    .prose pre { background:#18181B; color:#E4E4E7; padding:1.25rem 1.5rem; border-radius:.75rem; overflow-x:auto; margin:1.75rem 0; font-size:.8125rem; line-height:1.75; font-family:ui-monospace,monospace; }
+    .prose code:not(pre code) { background:#F4F4F5; color:#0F172A; padding:.15rem .4rem; border-radius:.375rem; font-size:.875em; font-family:ui-monospace,monospace; }
+    .prose blockquote { border-left:3px solid #059669; padding-left:1.25rem; margin:1.75rem 0; color:#52525B; font-style:italic; font-size:1.0625rem; }
+    .prose strong { color:#09090B; font-weight:600; }
+    .prose a { color:#059669; text-decoration:underline; }
+    .prose hr { border:none; border-top:1px solid #E4E4E7; margin:2.5rem 0; }
+    .prose img { border-radius:.75rem; margin:1.75rem 0; max-width:100%; }
+
+    /* Category pill */
+    .cat-qa    { background:#EFF6FF; color:#2563EB; border-color:#BFDBFE; }
+    .cat-cyber { background:#FFF7ED; color:#C2410C; border-color:#FED7AA; }
+    .cat-petro { background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
+    .dot { width:3px; height:3px; border-radius:50%; background:#A1A1AA; display:inline-block; }
+
+    /* Tags */
+    .post-tag { display:inline-flex; align-items:center; padding:.25rem .75rem; border-radius:9999px; font-size:.75rem; font-weight:500; border:1px solid #E4E4E7; background:#F4F4F5; color:#52525B; white-space:nowrap; transition: background .15s ease, border-color .15s ease; }
+    .post-tag:hover { background:#E4E4E7; border-color:#D4D4D8; }
+    /* Share buttons */
+    .share-btn { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem 1rem; border-radius:.625rem; font-size:.8125rem; font-weight:600; border:1px solid; cursor:pointer; transition: all .15s ease; text-decoration:none; white-space:nowrap; }
+    .share-twitter  { background:#fff; color:#09090B; border-color:#E4E4E7; }
+    .share-twitter:hover  { background:#F9F9F9; border-color:#09090B; }
+    .share-linkedin { background:#fff; color:#0A66C2; border-color:#BFDBFE; }
+    .share-linkedin:hover { background:#EFF6FF; }
+    .share-copy     { background:#fff; color:#52525B; border-color:#E4E4E7; }
+    .share-copy:hover     { background:#F4F4F5; border-color:#D4D4D8; }
+    .share-copy.copied    { background:#F0FDF4; color:#166534; border-color:#BBF7D0; }
+    .share-facebook { background:#fff; color:#1877F2; border-color:#BFDBFE; }
+    .share-facebook:hover { background:#EFF6FF; }
+    /* More posts cards */
+    .more-card { background:#fff; border:1px solid #E4E4E7; border-radius:1rem; overflow:hidden; display:flex; flex-direction:column; transition: transform .25s ease, box-shadow .25s ease, border-color .2s ease; text-decoration:none; }
+    .more-card:hover { transform:translateY(-3px); box-shadow:0 16px 32px -8px rgba(0,0,0,.10); border-color:#D4D4D8; }
+    /* Loading skeleton */
+    .skeleton { background:linear-gradient(90deg,#F4F4F5 25%,#E4E4E7 50%,#F4F4F5 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:.5rem; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* Draft banner */
+    #draft-banner { background:#FFF7ED; border-bottom:1px solid #FED7AA; color:#9A3412; padding:.625rem 1rem; text-align:center; font-size:.875rem; font-weight:500; }
+
+    /* Reactions */
+    .reaction-btn { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem 1.25rem; border-radius:.75rem; font-size:.875rem; font-weight:600; border:1.5px solid #E4E4E7; background:#fff; color:#52525B; cursor:pointer; transition: all .15s ease; user-select:none; }
+    .reaction-btn:hover { border-color:#D4D4D8; background:#F4F4F5; }
+    .reaction-btn.active-like { background:#F0FDF4; color:#166534; border-color:#86EFAC; }
+    .reaction-btn.active-dislike { background:#FFF1F2; color:#9F1239; border-color:#FDA4AF; }
+    .reaction-btn svg { flex-shrink:0; }
+
+    /* Comments */
+    .comment-card { background:#fff; border:1px solid #E4E4E7; border-radius:1rem; padding:1.25rem; }
+    .comment-input { width:100%; border:1.5px solid #E4E4E7; border-radius:.75rem; padding:.625rem .875rem; font-size:.9rem; font-family:'Space Grotesk',sans-serif; background:#fff; color:#09090B; outline:none; transition: border-color .15s ease; resize:vertical; }
+    .comment-input:focus { border-color:#A1A1AA; }
+    .comment-submit { display:inline-flex; align-items:center; gap:.5rem; padding:.625rem 1.375rem; border-radius:.75rem; font-size:.875rem; font-weight:600; background:#18181B; color:#fff; border:none; cursor:pointer; transition: background .15s ease; }
+    .comment-submit:hover:not(:disabled) { background:#3F3F46; }
+    .comment-submit:disabled { opacity:.5; cursor:not-allowed; }
+  </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+
+  <!-- Draft banner (shown only for unpublished posts) -->
+  <div id="draft-banner" class="hidden">
+    Draft — not published. <a href="admin/" class="underline font-semibold">Edit in Admin</a>
+  </div>
+
+  <!-- Nav -->
+  <nav class="fixed top-4 left-4 right-4 z-50 flex items-center justify-between px-5 py-3 bg-white/80 backdrop-blur-md border border-zinc-200 rounded-2xl shadow-sm">
+    <a href="index.html" class="font-heading font-bold text-zinc-950 text-lg tracking-tight">AR</a>
+    <div class="hidden md:flex items-center gap-1 nav-links">
+      <a href="index.html">Home</a>
+      <a href="projects.html">Work</a>
+      <a href="about.html">About</a>
+      <a href="blog.html" class="nav-active">Blog</a>
+      <a href="books.html">Books</a>
+      <a href="contact.html">Contact</a>
+    </div>
+    <a href="contact.html" class="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-zinc-950 text-white text-sm font-medium rounded-xl hover:bg-zinc-800 transition-colors">Hire Me</a>
+    <button id="menu-btn" aria-label="Open menu" class="md:hidden flex flex-col gap-1.5 p-2">
+      <span class="w-5 h-0.5 bg-zinc-950 block" id="bar1"></span>
+      <span class="w-5 h-0.5 bg-zinc-950 block"></span>
+      <span class="w-4 h-0.5 bg-zinc-950 block" id="bar3"></span>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="hidden fixed top-[76px] left-4 right-4 z-40 bg-white border border-zinc-200 rounded-2xl shadow-lg p-4">
+    <div class="flex flex-col gap-1">
+      <a href="index.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Home</a>
+      <a href="projects.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Work</a>
+      <a href="about.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">About</a>
+      <a href="blog.html" class="px-4 py-3 text-sm font-medium rounded-xl mobile-nav-active">Blog</a>
+      <a href="books.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Books</a>
+      <a href="contact.html" class="px-4 py-3 text-sm font-medium text-zinc-600 hover:bg-zinc-50 rounded-xl transition-colors">Contact</a>
+      <a href="contact.html" class="mt-2 px-4 py-3 text-sm font-medium text-white bg-zinc-950 rounded-xl text-center">Hire Me</a>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <main class="pt-28 pb-24">
+    <div class="px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+
+      <a href="blog.html" class="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-950 transition-colors mb-10 cursor-pointer">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        Back to Blog
+      </a>
+
+      <!-- Loading skeleton -->
+      <div id="skeleton">
+        <div class="skeleton h-4 w-24 mb-6"></div>
+        <div class="skeleton h-10 w-full mb-3"></div>
+        <div class="skeleton h-10 w-3/4 mb-6"></div>
+        <div class="skeleton h-4 w-48 mb-12"></div>
+        <div class="space-y-3">
+          <div class="skeleton h-4 w-full"></div>
+          <div class="skeleton h-4 w-full"></div>
+          <div class="skeleton h-4 w-5/6"></div>
+        </div>
+      </div>
+
+      <!-- Error state -->
+      <div id="error-state" class="hidden text-center py-20">
+        <p class="text-zinc-400 text-lg mb-2">Post not found.</p>
+        <a href="blog.html" class="text-emerald-600 text-sm underline">Back to blog</a>
+      </div>
+
+      <!-- Post content (populated by JS) -->
+      <article id="post-article" class="hidden">
+
+        <header class="mb-10" data-animate>
+          <!-- Banner gradient bar -->
+          <div id="post-banner" class="h-1.5 rounded-full mb-8 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+
+          <div class="flex flex-wrap items-center gap-3 mb-5">
+            <span id="post-cat" class="cat-qa text-xs font-semibold px-2.5 py-1 rounded-lg border">Category</span>
+            <span class="dot"></span>
+            <span id="post-date" class="text-zinc-400 text-sm"></span>
+            <span class="dot"></span>
+            <span id="post-readtime" class="text-zinc-400 text-sm flex items-center gap-1">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span id="post-readtime-val"></span> min read
+            </span>
+          </div>
+
+          <h1 id="post-title" class="font-heading font-black text-zinc-950 text-3xl sm:text-4xl leading-tight mb-4"></h1>
+          <p id="post-excerpt" class="text-zinc-500 text-lg leading-relaxed mb-8"></p>
+
+          <div class="flex items-center justify-between pt-6 border-t border-zinc-200 gap-4 flex-wrap">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 bg-zinc-950 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0">AR</div>
+              <div>
+                <p class="text-zinc-900 text-sm font-semibold">Alex Rivera</p>
+                <p class="text-zinc-400 text-xs">Author</p>
+              </div>
+            </div>
+            <!-- Share buttons (top) -->
+            <div class="flex items-center gap-2">
+              <span class="text-zinc-400 text-xs font-medium hidden sm:block">Share</span>
+              <a id="share-twitter-top" href="#" target="_blank" rel="noopener" class="share-btn share-twitter">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                <span class="hidden sm:inline">X</span>
+              </a>
+              <a id="share-linkedin-top" href="#" target="_blank" rel="noopener" class="share-btn share-linkedin">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                <span class="hidden sm:inline">LinkedIn</span>
+              </a>
+              <a id="share-facebook-top" href="#" target="_blank" rel="noopener" class="share-btn share-facebook">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                <span class="hidden sm:inline">FB</span>
+              </a>
+              <button id="copy-link-top" onclick="copyLink(this)" class="share-btn share-copy">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                <span class="hidden sm:inline">Copy link</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <!-- Article body from Quill -->
+        <div id="post-body" class="prose" data-animate></div>
+
+        <!-- Reactions -->
+        <div id="reactions-section" class="mt-12 p-5 bg-zinc-50 rounded-2xl border border-zinc-200 flex flex-wrap items-center gap-4" data-animate>
+          <div class="flex-1 min-w-0">
+            <p class="font-heading font-bold text-zinc-950 text-sm mb-0.5">Was this helpful?</p>
+            <p class="text-zinc-400 text-xs">Let me know what you think.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <button id="like-btn" onclick="vote('like')" class="reaction-btn" aria-label="Like">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg>
+              <span id="like-count">–</span>
+            </button>
+            <button id="dislike-btn" onclick="vote('dislike')" class="reaction-btn" aria-label="Dislike">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z"/></svg>
+              <span id="dislike-count">–</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Comments -->
+        <section id="comments-section" class="mt-12" data-animate>
+          <h2 class="font-heading font-bold text-zinc-950 text-xl mb-6">Comments</h2>
+
+          <!-- Comment form -->
+          <form id="comment-form" onsubmit="submitComment(event)" class="mb-8 p-5 bg-zinc-50 rounded-2xl border border-zinc-200">
+            <div class="flex flex-col sm:flex-row gap-3 mb-3">
+              <input id="comment-name" class="comment-input" placeholder="Your name" maxlength="80" required />
+              <input id="comment-email" class="comment-input" placeholder="Email (optional, not shown)" maxlength="120" type="email" oninput="document.getElementById('comment-status').textContent=''" />
+            </div>
+            <textarea id="comment-body" class="comment-input mb-3" rows="4" placeholder="Share your thoughts…" maxlength="2000" required></textarea>
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <p id="comment-status" class="text-sm text-zinc-400"></p>
+              <button type="submit" id="comment-submit" class="comment-submit">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                Post Comment
+              </button>
+            </div>
+          </form>
+
+          <!-- Comments list -->
+          <div id="comments-list" class="space-y-4">
+            <p id="comments-loading" class="text-zinc-400 text-sm">Loading comments…</p>
+          </div>
+        </section>
+
+        <!-- Tags + share footer -->
+        <footer class="mt-16 pt-10 border-t border-zinc-200" data-animate>
+
+          <!-- Tags -->
+          <div id="post-tags-row" class="hidden mb-8">
+            <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">Tags</p>
+            <div id="post-tags" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <!-- Share -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-5 p-5 bg-zinc-50 rounded-2xl border border-zinc-200 mb-8">
+            <div>
+              <p class="font-heading font-bold text-zinc-950 text-sm mb-0.5">Found this useful?</p>
+              <p class="text-zinc-400 text-xs">Share it with your network.</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <a id="share-twitter-bot" href="#" target="_blank" rel="noopener" class="share-btn share-twitter">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                Share on X
+              </a>
+              <a id="share-linkedin-bot" href="#" target="_blank" rel="noopener" class="share-btn share-linkedin">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                Share on LinkedIn
+              </a>
+              <a id="share-facebook-bot" href="#" target="_blank" rel="noopener" class="share-btn share-facebook">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                Share on Facebook
+              </a>
+              <button id="copy-link-bot" onclick="copyLink(this)" class="share-btn share-copy">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                Copy link
+              </button>
+            </div>
+          </div>
+
+          <a href="blog.html" class="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 hover:text-zinc-950 transition-colors">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            Back to all posts
+          </a>
+        </footer>
+
+        <!-- More posts -->
+        <section id="more-posts-section" class="hidden mt-20" data-animate>
+          <div class="flex items-center justify-between mb-6">
+            <h2 id="more-posts-heading" class="font-heading font-bold text-zinc-950 text-xl">More posts</h2>
+            <a href="blog.html" class="text-sm text-zinc-400 hover:text-zinc-700 transition-colors">View all →</a>
+          </div>
+          <div id="more-posts-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+        </section>
+
+      </article>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-zinc-200 px-4 sm:px-6 lg:px-8 py-10">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+      <p class="font-heading font-bold text-zinc-950 text-lg tracking-tight">Alex Rivera</p>
+      <div class="flex items-center gap-6 text-sm text-zinc-500">
+        <a href="index.html">Home</a>
+        <a href="projects.html">Work</a>
+        <a href="about.html">About</a>
+        <a href="blog.html">Blog</a>
+        <a href="books.html">Books</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+    <p class="text-center text-zinc-400 text-sm mt-8">© 2024 Alex Rivera. All rights reserved.</p>
+  </footer>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // ── Firebase config — same as admin.html ──────────────────────────────────
+    const firebaseConfig = {
+      apiKey:            "AIzaSyBBDcdmekuIHZf79vU1F1WOqXuDqjZ8d-w",
+      authDomain:        "calebnanigah-site.firebaseapp.com",
+      projectId:         "calebnanigah-site",
+      storageBucket:     "calebnanigah-site.firebasestorage.app",
+      messagingSenderId: "876084744507",
+      appId:             "1:876084744507:web:cefcae92427150e0c5671e"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // ── Get post ID from URL (?id=DOCID) ──────────────────────────────────────
+    const postId = new URLSearchParams(window.location.search).get('id');
+
+    const catLabel = { qa: 'QA Testing', cyber: 'Cybersecurity', petro: 'Petroleum Eng.' };
+    const catClass = { qa: 'cat-qa', cyber: 'cat-cyber', petro: 'cat-petro' };
+    const gradients = {
+      'from-blue-500 to-indigo-600':   'from-blue-500 to-indigo-600',
+      'from-orange-500 to-red-600':    'from-orange-500 to-red-600',
+      'from-emerald-500 to-teal-600':  'from-emerald-500 to-teal-600',
+      'from-violet-500 to-purple-700': 'from-violet-500 to-purple-700',
+      'from-zinc-700 to-zinc-900':     'from-zinc-700 to-zinc-900',
+    };
+
+    async function loadPost() {
+      if (!postId) {
+        showError();
+        return;
+      }
+
+      try {
+        const doc = await db.collection('posts').doc(postId).get();
+
+        if (!doc.exists) {
+          showError();
+          return;
+        }
+
+        const d = doc.data();
+
+        // Show draft banner if not published
+        if (d.status !== 'published') {
+          document.getElementById('draft-banner').classList.remove('hidden');
+          // Shift nav down since banner is now visible
+          document.querySelector('nav').style.top = '3rem';
+        }
+
+        // Meta
+        document.getElementById('page-title').textContent = `${d.title} — Alex Rivera`;
+        document.getElementById('meta-desc').setAttribute('content', d.excerpt || '');
+
+        // Banner gradient
+        const banner = document.getElementById('post-banner');
+        banner.className = `h-1.5 rounded-full mb-8 bg-gradient-to-r ${d.gradient || 'from-blue-500 to-indigo-600'}`;
+
+        // Category
+        const catEl = document.getElementById('post-cat');
+        catEl.textContent = catLabel[d.category] || d.category;
+        catEl.className = `${catClass[d.category] || 'cat-qa'} text-xs font-semibold px-2.5 py-1 rounded-lg border`;
+
+        // Meta info
+        document.getElementById('post-date').textContent = formatDate(d.date);
+        document.getElementById('post-readtime-val').textContent = d.readtime || '?';
+
+        // Header
+        document.getElementById('post-title').textContent   = d.title;
+        document.getElementById('post-excerpt').textContent = d.excerpt;
+
+        // Body (HTML from Quill)
+        document.getElementById('post-body').innerHTML = d.content || '<p class="text-zinc-400">No content yet.</p>';
+
+        // Tags
+        const tags = Array.isArray(d.tags) ? d.tags.filter(Boolean) : [];
+        if (tags.length) {
+          document.getElementById('post-tags-row').classList.remove('hidden');
+          document.getElementById('post-tags').innerHTML = tags
+            .map(t => `<span class="post-tag">#${t}</span>`)
+            .join('');
+        }
+
+        // Share URLs
+        const pageUrl  = encodeURIComponent(window.location.href);
+        const pageTitle = encodeURIComponent(d.title);
+        const twitterUrl  = `https://twitter.com/intent/tweet?url=${pageUrl}&text=${pageTitle}`;
+        const linkedinUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${pageUrl}`;
+        const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${pageUrl}`;
+        ['share-twitter-top','share-twitter-bot'].forEach(id => document.getElementById(id).href = twitterUrl);
+        ['share-linkedin-top','share-linkedin-bot'].forEach(id => document.getElementById(id).href = linkedinUrl);
+        ['share-facebook-top','share-facebook-bot'].forEach(id => document.getElementById(id).href = facebookUrl);
+
+        // Show article, hide skeleton
+        document.getElementById('skeleton').remove();
+        document.getElementById('post-article').classList.remove('hidden');
+
+        // Load more posts, reactions, and comments
+        loadMorePosts(postId, d.category);
+        loadReactions();
+        loadComments();
+
+        // Animate
+        setTimeout(() => {
+          document.querySelectorAll('[data-animate]').forEach(el => el.classList.add('visible'));
+        }, 50);
+
+      } catch (e) {
+        console.error(e);
+        showError();
+      }
+    }
+
+    async function loadMorePosts(currentId, category) {
+      try {
+        // Try same category first (excluding current post)
+        let snap = await db.collection('posts')
+          .where('status', '==', 'published')
+          .where('category', '==', category)
+          .orderBy('date', 'desc')
+          .limit(3)
+          .get();
+
+        let docs = snap.docs.filter(d => d.id !== currentId);
+
+        // Not enough same-category posts — fill from recent
+        if (docs.length < 2) {
+          const recentSnap = await db.collection('posts')
+            .where('status', '==', 'published')
+            .orderBy('date', 'desc')
+            .limit(5)
+            .get();
+          const extra = recentSnap.docs.filter(d => d.id !== currentId && !docs.find(x => x.id === d.id));
+          docs = [...docs, ...extra];
+        }
+
+        docs = docs.slice(0, 2);
+        if (!docs.length) return;
+
+        const catLabel = { qa: 'QA Testing', cyber: 'Cybersecurity', petro: 'Petroleum Eng.' };
+        const catColor = {
+          qa:    'bg-blue-50 text-blue-700 border-blue-200',
+          cyber: 'bg-orange-50 text-orange-700 border-orange-200',
+          petro: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        };
+        const gradients = {
+          'from-blue-500 to-indigo-600':   'from-blue-500 to-indigo-600',
+          'from-orange-500 to-red-600':    'from-orange-500 to-red-600',
+          'from-emerald-500 to-teal-600':  'from-emerald-500 to-teal-600',
+          'from-violet-500 to-purple-700': 'from-violet-500 to-purple-700',
+          'from-zinc-700 to-zinc-900':     'from-zinc-700 to-zinc-900',
+        };
+
+        document.getElementById('more-posts-grid').innerHTML = docs.map(doc => {
+          const d   = doc.data();
+          const url = d.slug || `post.html?id=${doc.id}`;
+          const grad = gradients[d.gradient] || 'from-blue-500 to-indigo-600';
+          return `
+            <a href="${url}" class="more-card">
+              <div class="h-2 bg-gradient-to-r ${grad}"></div>
+              <div class="p-5 flex flex-col flex-1">
+                <div class="mb-3">
+                  <span class="text-xs font-semibold px-2 py-0.5 rounded-md border ${catColor[d.category] || 'bg-zinc-100 text-zinc-600 border-zinc-200'}">${catLabel[d.category] || d.category}</span>
+                </div>
+                <h3 class="font-heading font-bold text-zinc-950 text-base leading-snug mb-2 flex-1">${d.title}</h3>
+                <p class="text-zinc-400 text-xs">${d.date || ''}${d.date && d.readtime ? ' · ' : ''}${d.readtime ? d.readtime + ' min read' : ''}</p>
+              </div>
+            </a>`;
+        }).join('');
+
+        const catName = { qa: 'QA Testing', cyber: 'Cybersecurity', petro: 'Petroleum Eng.' };
+        document.getElementById('more-posts-heading').textContent = `More in ${catName[category] || 'Blog'}`;
+        document.getElementById('more-posts-section').classList.remove('hidden');
+      } catch (e) {
+        // Silently skip if no more posts
+      }
+    }
+
+    function showError() {
+      document.getElementById('skeleton').remove();
+      document.getElementById('error-state').classList.remove('hidden');
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    loadPost();
+
+    // ── Copy link ─────────────────────────────────────────────────────────────
+    function copyLink(btn) {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        const orig = btn.innerHTML;
+        btn.classList.add('copied');
+        btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Copied!`;
+        setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = orig; }, 2000);
+      });
+    }
+
+    // ── Mobile menu ───────────────────────────────────────────────────────────
+    const menuBtn  = document.getElementById('menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const bar1 = document.getElementById('bar1');
+    const bar3 = document.getElementById('bar3');
+    menuBtn.addEventListener('click', () => {
+      const open = mobileMenu.classList.contains('open');
+      mobileMenu.classList.toggle('open', !open);
+      mobileMenu.classList.toggle('hidden', open);
+      bar1.style.transform = open ? '' : 'rotate(45deg) translate(4px, 4px)';
+      bar3.style.transform = open ? '' : 'rotate(-45deg) translate(3px, -3px)';
+    });
+
+    // ── Reactions (like / dislike) ────────────────────────────────────────────
+    const VOTE_KEY = postId ? `vote_${postId}` : null;
+
+    function currentVote() { return VOTE_KEY ? localStorage.getItem(VOTE_KEY) : null; }
+
+    function applyReactionUI(vote) {
+      const likeBtn    = document.getElementById('like-btn');
+      const dislikeBtn = document.getElementById('dislike-btn');
+      likeBtn.classList.toggle('active-like',    vote === 'like');
+      dislikeBtn.classList.toggle('active-dislike', vote === 'dislike');
+    }
+
+    async function loadReactions() {
+      if (!postId) return;
+      try {
+        const snap = await db.collection('reactions').doc(postId).get();
+        const data  = snap.exists ? snap.data() : {};
+        document.getElementById('like-count').textContent    = data.likes    ?? 0;
+        document.getElementById('dislike-count').textContent = data.dislikes ?? 0;
+        applyReactionUI(currentVote());
+      } catch (e) {
+        document.getElementById('like-count').textContent    = '–';
+        document.getElementById('dislike-count').textContent = '–';
+      }
+    }
+
+    async function vote(type) {
+      if (!postId) return;
+      const prev  = currentVote();
+      const inc   = firebase.firestore.FieldValue.increment;
+      const ref   = db.collection('reactions').doc(postId);
+      const update = {};
+
+      if (prev === type) {
+        // Toggle off
+        update[type === 'like' ? 'likes' : 'dislikes'] = inc(-1);
+        localStorage.removeItem(VOTE_KEY);
+      } else {
+        // Switch or new vote
+        if (prev) update[prev === 'like' ? 'likes' : 'dislikes'] = inc(-1);
+        update[type === 'like' ? 'likes' : 'dislikes'] = inc(1);
+        localStorage.setItem(VOTE_KEY, type);
+      }
+
+      // Optimistic UI
+      applyReactionUI(currentVote());
+
+      try {
+        await ref.set(update, { merge: true });
+        await loadReactions();
+      } catch (e) {
+        console.error('Reaction error:', e);
+      }
+    }
+
+    // ── Comments ──────────────────────────────────────────────────────────────
+    function escapeHTML(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    function timeAgo(ts) {
+      if (!ts) return '';
+      const secs = Math.floor((Date.now() - ts.toMillis()) / 1000);
+      if (secs < 60)   return 'just now';
+      if (secs < 3600) return `${Math.floor(secs / 60)}m ago`;
+      if (secs < 86400) return `${Math.floor(secs / 3600)}h ago`;
+      const d = ts.toDate();
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function renderComments(docs) {
+      const list = document.getElementById('comments-list');
+      if (!docs.length) {
+        list.innerHTML = '<p class="text-zinc-400 text-sm">No comments yet. Be the first!</p>';
+        return;
+      }
+      list.innerHTML = docs.map(doc => {
+        const c = doc.data();
+        const initials = escapeHTML((c.name || '?').trim().split(/\s+/).map(w => w[0]).join('').slice(0,2).toUpperCase());
+        return `
+          <div class="comment-card">
+            <div class="flex items-start gap-3 mb-2">
+              <div class="w-8 h-8 rounded-full bg-zinc-950 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">${initials}</div>
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-baseline gap-2">
+                  <span class="font-semibold text-zinc-900 text-sm">${escapeHTML(c.name || 'Anonymous')}</span>
+                  <span class="text-zinc-400 text-xs">${timeAgo(c.createdAt)}</span>
+                </div>
+                <p class="text-zinc-600 text-sm leading-relaxed mt-1 whitespace-pre-wrap">${escapeHTML(c.body || '')}</p>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    async function loadComments() {
+      if (!postId) return;
+      try {
+        const snap = await db.collection('posts').doc(postId).collection('comments')
+          .orderBy('createdAt', 'asc')
+          .get();
+        renderComments(snap.docs);
+      } catch (e) {
+        document.getElementById('comments-list').innerHTML = '<p class="text-zinc-400 text-sm">Could not load comments.</p>';
+      }
+    }
+
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    async function submitComment(e) {
+      e.preventDefault();
+      const name        = document.getElementById('comment-name').value.trim();
+      const emailRaw    = document.getElementById('comment-email').value.trim();
+      const body        = document.getElementById('comment-body').value.trim();
+      const status      = document.getElementById('comment-status');
+      const btn         = document.getElementById('comment-submit');
+      const emailInput  = document.getElementById('comment-email');
+
+      // Validate email only when the user filled it in
+      if (emailRaw && !EMAIL_RE.test(emailRaw)) {
+        status.textContent = 'Please enter a valid email address.';
+        status.className   = 'text-sm text-red-500';
+        emailInput.focus();
+        return;
+      }
+
+      if (!name || !body) return;
+
+      btn.disabled  = true;
+      btn.textContent = 'Posting…';
+      status.textContent = '';
+
+      try {
+        await db.collection('posts').doc(postId).collection('comments').add({
+          name,
+          body,
+          postId,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+        document.getElementById('comment-name').value = '';
+        document.getElementById('comment-email').value = '';
+        document.getElementById('comment-body').value = '';
+        status.textContent = 'Comment posted!';
+        status.className   = 'text-sm text-emerald-600';
+        await loadComments();
+      } catch (err) {
+        console.error('Comment error:', err);
+        status.textContent = 'Could not post comment. Try again.';
+        status.className   = 'text-sm text-red-500';
+      } finally {
+        btn.disabled    = false;
+        btn.innerHTML   = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg> Post Comment`;
+        setTimeout(() => { if (status.textContent === 'Comment posted!') status.textContent = ''; }, 3000);
+      }
+    }
+
+    // ── Scroll animations ─────────────────────────────────────────────────────
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('[data-animate]').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>
