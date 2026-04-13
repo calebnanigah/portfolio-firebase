@@ -143,6 +143,10 @@
         <button id="tab-write" class="tab-btn px-5 py-2.5 rounded-t-xl text-sm font-semibold border border-zinc-200 border-b-0 -mb-px text-zinc-500 hover:text-zinc-900" onclick="switchTab('write')">
           ✍ Write Post
         </button>
+        <button id="tab-subscribers" class="tab-btn px-5 py-2.5 rounded-t-xl text-sm font-semibold border border-zinc-200 border-b-0 -mb-px text-zinc-500 hover:text-zinc-900" onclick="switchTab('subscribers')">
+          Subscribers
+          <span id="subscribers-count" class="ml-2 text-xs bg-zinc-100 text-zinc-500 px-1.5 py-0.5 rounded-full">0</span>
+        </button>
       </div>
 
       <!-- ─── POSTS PANEL ─────────────────────────── -->
@@ -387,6 +391,22 @@
 
       </div>
 
+      <!-- ─── SUBSCRIBERS PANEL ──────────────────── -->
+      <div id="panel-subscribers" class="hidden">
+        <div class="card overflow-hidden">
+          <div class="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+            <div>
+              <h2 class="font-heading font-semibold text-zinc-950 text-sm">Newsletter Subscribers</h2>
+              <p class="text-zinc-400 text-xs mt-0.5">Emails collected from the blog subscribe form.</p>
+            </div>
+            <span id="subscribers-list-count" class="text-zinc-400 text-xs"></span>
+          </div>
+          <div id="subscribers-list" class="divide-y divide-zinc-100">
+            <div class="px-6 py-10 text-center text-zinc-400 text-sm">Loading...</div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -437,6 +457,7 @@ const firebaseConfig = {
         document.getElementById('admin-email').textContent = user.email;
         loadPosts();
         loadBooks();
+        loadSubscribers();
       } else {
         document.getElementById('login-screen').classList.remove('hidden');
         document.getElementById('dashboard').classList.add('hidden');
@@ -466,7 +487,7 @@ const firebaseConfig = {
 
     // ─── Tabs ───────────────────────────────────
     function switchTab(tab) {
-      const tabs = ['posts', 'books', 'write'];
+      const tabs = ['posts', 'books', 'write', 'subscribers'];
       tabs.forEach(t => {
         document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
         document.getElementById(`tab-${t}`).classList.toggle('bg-zinc-950', t === tab);
@@ -758,6 +779,52 @@ const firebaseConfig = {
             </div>`;
         }).join('');
       }, err => showToast('Failed to load books: ' + err.message, 'error'));
+    }
+
+    // ══════════════════════════════════════════════
+    // SUBSCRIBERS
+    // ══════════════════════════════════════════════
+
+    function loadSubscribers() {
+      db.collection('subscribers').orderBy('subscribedAt', 'desc').onSnapshot(snapshot => {
+        const list  = document.getElementById('subscribers-list');
+        const count = snapshot.size;
+        document.getElementById('subscribers-count').textContent = count;
+        document.getElementById('subscribers-list-count').textContent = `${count} subscriber${count !== 1 ? 's' : ''}`;
+
+        if (count === 0) {
+          list.innerHTML = '<div class="px-6 py-10 text-center text-zinc-400 text-sm">No subscribers yet.</div>';
+          return;
+        }
+
+        list.innerHTML = snapshot.docs.map(doc => {
+          const d = doc.data();
+          const date = d.subscribedAt
+            ? new Date(d.subscribedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+            : '—';
+          return `
+            <div class="px-6 py-4 flex items-center justify-between gap-4 hover:bg-zinc-50/60 transition-colors">
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-zinc-950 text-sm truncate">${doc.id}</p>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span class="text-zinc-400 text-xs">Subscribed ${date}</span>
+                  ${d.source ? `<span class="text-zinc-300 text-xs">·</span><span class="text-zinc-400 text-xs">${d.source}</span>` : ''}
+                </div>
+              </div>
+              <button class="btn-danger flex-shrink-0" onclick='deleteSubscriber("${doc.id}")'>Remove</button>
+            </div>`;
+        }).join('');
+      }, err => showToast('Failed to load subscribers: ' + err.message, 'error'));
+    }
+
+    async function deleteSubscriber(email) {
+      if (!confirm(`Remove ${email} from subscribers? This cannot be undone.`)) return;
+      try {
+        await db.collection('subscribers').doc(email).delete();
+        showToast('Subscriber removed.', 'success');
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
     }
 
     // ══════════════════════════════════════════════

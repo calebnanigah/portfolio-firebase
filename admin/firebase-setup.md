@@ -102,6 +102,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if true;
     }
+    // Newsletter subscribers — public write (subscribe), admin-only read
+    match /subscribers/{email} {
+      allow write: if true;
+      allow read: if request.auth != null;
+    }
   }
 }
 ```

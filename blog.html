@@ -268,6 +268,7 @@
           </button>
         </form>
         <p id="newsletter-success" class="hidden text-emerald-400 text-sm mt-4 font-medium">You're subscribed. Thanks!</p>
+        <p id="newsletter-error" class="hidden text-red-400 text-sm mt-4 font-medium"></p>
       </div>
     </section>
   </main>
@@ -338,13 +339,34 @@
     // ── Newsletter form ──────────────────────────────────────────
     const newsletterForm = document.getElementById('newsletter-form');
     const newsletterSuccess = document.getElementById('newsletter-success');
-    newsletterForm.addEventListener('submit', (e) => {
+    const newsletterError = document.getElementById('newsletter-error');
+    const newsletterSubmitBtn = newsletterForm.querySelector('button[type="submit"]');
+
+    newsletterForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('newsletter-email').value.trim();
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!email || !emailRegex.test(email)) return;
-      newsletterForm.style.display = 'none';
-      newsletterSuccess.classList.remove('hidden');
+
+      newsletterSubmitBtn.disabled = true;
+      newsletterSubmitBtn.textContent = 'Subscribing…';
+      newsletterError.classList.add('hidden');
+
+      try {
+        await db.collection('subscribers').doc(email).set({
+          email,
+          subscribedAt: new Date().toISOString(),
+          source: 'blog',
+        });
+        newsletterForm.style.display = 'none';
+        newsletterSuccess.classList.remove('hidden');
+      } catch (err) {
+        console.error('Subscribe failed:', err);
+        newsletterError.textContent = 'Something went wrong. Please try again.';
+        newsletterError.classList.remove('hidden');
+        newsletterSubmitBtn.disabled = false;
+        newsletterSubmitBtn.textContent = 'Subscribe';
+      }
     });
 
     // ── Firebase ─────────────────────────────────────────────────
