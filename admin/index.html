@@ -238,6 +238,10 @@
               <input id="book-year" type="number" min="1800" max="2099" class="form-input" placeholder="2024" />
             </div>
             <div>
+              <label class="form-label">Date Added</label>
+              <input id="book-date-added" type="date" class="form-input" />
+            </div>
+            <div>
               <label class="form-label">Status *</label>
               <select id="book-status" class="form-input" onchange="toggleProgress()">
                 <option value="">Select status</option>
@@ -268,6 +272,10 @@
             <div class="sm:col-span-2">
               <label class="form-label">Personal Note</label>
               <textarea id="book-note" class="form-input" rows="2" placeholder="Your thoughts on this book..."></textarea>
+            </div>
+            <div class="sm:col-span-2">
+              <label class="form-label">Summary Link <span class="text-zinc-400 font-normal">(Google Docs URL)</span></label>
+              <input id="book-summary-link" type="url" class="form-input" placeholder="https://docs.google.com/..." />
             </div>
             <div>
               <label class="form-label">Cover Gradient</label>
@@ -666,15 +674,17 @@ const firebaseConfig = {
       const rating   = document.getElementById('book-rating').value ? parseInt(document.getElementById('book-rating').value) : null;
       const tagsRaw  = document.getElementById('book-tags').value;
       const tags     = tagsRaw.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
-      const note     = document.getElementById('book-note').value.trim();
-      const color    = document.getElementById('book-color').value;
+      const note      = document.getElementById('book-note').value.trim();
+      const color     = document.getElementById('book-color').value;
+      const dateAdded    = document.getElementById('book-date-added').value || new Date().toISOString().split('T')[0];
+      const summaryLink  = document.getElementById('book-summary-link').value.trim();
 
       if (!title || !author || !status) {
         showToast('Please fill in title, author, and status.', 'error');
         return;
       }
 
-      const data = { title, author, year, status, progress, rating, tags, note, color, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+      const data = { title, author, year, status, progress, rating, tags, note, color, dateAdded, summaryLink: summaryLink || null, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
 
       try {
         if (editingBookId) {
@@ -694,7 +704,7 @@ const firebaseConfig = {
     }
 
     function clearBookForm() {
-      ['book-title','book-author','book-year','book-tags','book-note'].forEach(id => document.getElementById(id).value = '');
+      ['book-title','book-author','book-year','book-tags','book-note','book-date-added','book-summary-link'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('book-status').value   = '';
       document.getElementById('book-progress').value = '';
       document.getElementById('book-color').value    = 'from-blue-500 to-indigo-600';
@@ -718,7 +728,9 @@ const firebaseConfig = {
       document.getElementById('book-progress').value = data.progress || 0;
       document.getElementById('book-tags').value     = (data.tags || []).join(', ');
       document.getElementById('book-note').value     = data.note || '';
-      document.getElementById('book-color').value    = data.color || 'from-blue-500 to-indigo-600';
+      document.getElementById('book-color').value      = data.color || 'from-blue-500 to-indigo-600';
+      document.getElementById('book-date-added').value    = data.dateAdded    || '';
+      document.getElementById('book-summary-link').value  = data.summaryLink  || '';
       if (data.rating) setRating(data.rating); else clearRating();
       toggleProgress();
       document.getElementById('book-form-title').textContent = 'Edit Book';
@@ -770,7 +782,7 @@ const firebaseConfig = {
                   ${d.year ? `<span class="text-zinc-400 text-xs">${d.year}</span>` : ''}
                 </div>
                 <p class="font-heading font-semibold text-zinc-950 text-sm">${d.title}</p>
-                <p class="text-zinc-400 text-xs">${d.author}${d.tags?.length ? ' · ' + d.tags.join(', ') : ''}</p>
+                <p class="text-zinc-400 text-xs">${d.author}${d.tags?.length ? ' · ' + d.tags.join(', ') : ''}${d.dateAdded ? ' · Added ' + d.dateAdded : ''}</p>
               </div>
               <div class="flex items-center gap-2 flex-shrink-0">
                 <button class="btn-secondary text-xs px-3 py-1.5" onclick='editBook("${doc.id}", ${JSON.stringify(d).replace(/'/g, "&#39;")})'>Edit</button>

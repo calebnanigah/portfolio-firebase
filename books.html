@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -63,6 +65,37 @@
     .tag-petroleum    { background:#ECFDF5; color:#047857; border-color:#6EE7B7; }
     .tag-fiction      { background:#FDF2F8; color:#9D174D; border-color:#FBCFE8; }
     .tag-productivity { background:#FAFAF9; color:#44403C; border-color:#D6D3D1; }
+
+    /* Summary CTA */
+    .summary-cta {
+      display: flex; align-items: center; justify-content: center; gap: .5rem;
+      width: 100%; padding: .6rem 1rem;
+      background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+      color: #1D4ED8; font-size: .75rem; font-weight: 600; letter-spacing: .01em;
+      border: 1px solid #BFDBFE; border-radius: .875rem;
+      text-decoration: none;
+      transition: background .2s ease, box-shadow .2s ease, transform .15s ease, border-color .2s ease;
+      position: relative; overflow: hidden;
+    }
+    .summary-cta::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.55) 50%, transparent 100%);
+      transform: translateX(-100%);
+      transition: transform .5s ease;
+    }
+    .summary-cta:hover::before { transform: translateX(100%); }
+    .summary-cta:hover {
+      background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+      border-color: #93C5FD;
+      box-shadow: 0 4px 14px -4px rgba(37,99,235,.25);
+      transform: translateY(-1px);
+    }
+    .summary-cta:active { transform: translateY(0); box-shadow: none; }
+
+    /* Loading skeleton */
+    @keyframes shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+    .skeleton { background:linear-gradient(90deg,#F4F4F5 25%,#E4E4E7 50%,#F4F4F5 75%); background-size:800px 100%; animation:shimmer 1.4s infinite; border-radius:.5rem; }
 
     /* Progress bar */
     .progress-bar { height:3px; background:#E4E4E7; border-radius:9999px; overflow:hidden; }
@@ -161,8 +194,8 @@
 
     <!-- FILTERS -->
     <section class="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mb-4">
-      <!-- Status filter -->
-      <div data-animate class="flex flex-wrap gap-2 mb-4">
+      <!-- Status filter + sort -->
+      <div data-animate class="flex flex-wrap items-center gap-2 mb-4">
         <button class="filter-btn active px-4 py-2 text-sm font-medium border border-zinc-200 rounded-xl cursor-pointer" data-status="all">All</button>
         <button class="filter-btn px-4 py-2 text-sm font-medium border border-zinc-200 text-zinc-600 hover:border-zinc-400 rounded-xl cursor-pointer" data-status="finished">
           <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>Finished</span>
@@ -173,6 +206,14 @@
         <button class="filter-btn px-4 py-2 text-sm font-medium border border-zinc-200 text-zinc-600 hover:border-zinc-400 rounded-xl cursor-pointer" data-status="next">
           <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-orange-400 inline-block"></span>Up Next</span>
         </button>
+        <!-- Sort -->
+        <div class="ml-auto flex items-center gap-2">
+          <span class="text-zinc-400 text-xs font-medium hidden sm:inline">Sort:</span>
+          <select id="sort-select" class="text-sm font-medium border border-zinc-200 text-zinc-600 rounded-xl px-3 py-2 bg-white cursor-pointer hover:border-zinc-400 focus:outline-none transition-colors">
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+          </select>
+        </div>
       </div>
 
       <!-- Tag filter -->
@@ -215,9 +256,24 @@
   </footer>
 
   <script>
-    // ── Book data ─────────────────────────────────────────────────────────────
-    const BOOKS = [
-      // ── Reading now ──
+    // ── Firebase ──────────────────────────────────────────────────────────────
+    const firebaseConfig = {
+      apiKey: "AIzaSyBBDcdmekuIHZf79vU1F1WOqXuDqjZ8d-w",
+      authDomain: "calebnanigah-site.firebaseapp.com",
+      projectId: "calebnanigah-site",
+      storageBucket: "calebnanigah-site.firebasestorage.app",
+      messagingSenderId: "876084744507",
+      appId: "1:876084744507:web:cefcae92427150e0c5671e",
+      measurementId: "G-JR9EFB01Q8"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // ── Book data (populated from Firestore) ──────────────────────────────────
+    let BOOKS = [];
+
+    // ── Fallback data (shown when Firestore is empty) ────────────────────────
+    const _FALLBACK_BOOKS = [
       {
         title: "The Pragmatic Programmer",
         author: "David Thomas & Andrew Hunt",
@@ -540,25 +596,64 @@
             </div>
             <!-- Title & author -->
             <h2 class="font-heading font-bold text-zinc-950 text-base leading-snug mb-1">${book.title}</h2>
-            <p class="text-zinc-400 text-xs mb-3">${book.author} · ${book.year > 0 ? book.year : Math.abs(book.year) + ' BC'}</p>
+            <p class="text-zinc-400 text-xs mb-1">${book.author} · ${book.year > 0 ? book.year : Math.abs(book.year) + ' BC'}</p>
+            ${book.dateAdded ? `<p class="text-zinc-300 text-xs mb-2">Added ${fmtDate(book.dateAdded)}</p>` : '<p class="mb-2"></p>'}
             <!-- Tags -->
             <div class="flex flex-wrap gap-1.5 mt-auto">${tagPills}</div>
             ${progressBar}
             ${noteHtml}
           </div>
+          ${book.summaryLink ? `
+          <div class="px-5 pb-5 pt-0">
+            <div class="border-t border-zinc-100 mb-4"></div>
+            <a href="${book.summaryLink}" target="_blank" rel="noopener noreferrer" class="summary-cta">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+              </svg>
+              Read Summary
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto">
+                <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
+              </svg>
+            </a>
+          </div>` : ''}
         </div>`;
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+    function fmtDate(iso) {
+      if (!iso) return '';
+      const [y, m, d] = iso.split('-');
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return `${months[parseInt(m,10)-1]} ${parseInt(d,10)}, ${y}`;
+    }
+
+    function dateKey(book) {
+      // Prefer explicit dateAdded; fall back to createdAt Firestore timestamp
+      if (book.dateAdded) return book.dateAdded; // 'YYYY-MM-DD' — sorts lexicographically
+      if (book.createdAt?.toDate) return book.createdAt.toDate().toISOString().split('T')[0];
+      return '0000-00-00';
     }
 
     // ── State ──────────────────────────────────────────────────────────────────
     let activeStatus = 'all';
     let activeTag    = 'all';
+    let activeSort   = 'newest';
 
     function getVisible() {
-      return BOOKS.filter(b => {
+      const filtered = BOOKS.filter(b => {
         const statusOk = activeStatus === 'all' || b.status === activeStatus;
         const tagOk    = activeTag    === 'all' || b.tags.includes(activeTag);
         return statusOk && tagOk;
       });
+      filtered.sort((a, b) => {
+        const ka = dateKey(a), kb = dateKey(b);
+        return activeSort === 'newest' ? kb.localeCompare(ka) : ka.localeCompare(kb);
+      });
+      return filtered;
     }
 
     function render() {
@@ -619,6 +714,12 @@
       });
     });
 
+    // ── Sort select ───────────────────────────────────────────────────────────
+    document.getElementById('sort-select').addEventListener('change', function() {
+      activeSort = this.value;
+      render();
+    });
+
     // ── Stats ─────────────────────────────────────────────────────────────────
     function animateCount(el, target, duration = 600) {
       let start = null;
@@ -666,10 +767,65 @@
       }
     });
 
+    // ── Loading skeleton ──────────────────────────────────────────────────────
+    function showSkeleton() {
+      const grid = document.getElementById('book-grid');
+      grid.innerHTML = Array.from({ length: 8 }, () => `
+        <div class="bg-white border border-zinc-200 rounded-2xl overflow-hidden flex flex-col">
+          <div class="h-1.5 skeleton"></div>
+          <div class="p-5 flex flex-col gap-3">
+            <div class="skeleton h-5 w-20 rounded-lg"></div>
+            <div class="skeleton h-4 w-3/4 rounded"></div>
+            <div class="skeleton h-3 w-1/2 rounded"></div>
+            <div class="flex gap-1.5 mt-2">
+              <div class="skeleton h-5 w-16 rounded-full"></div>
+              <div class="skeleton h-5 w-20 rounded-full"></div>
+            </div>
+          </div>
+        </div>`).join('');
+    }
+
     // ── Init ──────────────────────────────────────────────────────────────────
-    buildTagFilters();
-    render();
-    setTimeout(updateStats, 300);
+    showSkeleton();
+
+    async function init() {
+      try {
+        const snap = await db.collection('books').get();
+
+        if (!snap.empty) {
+          BOOKS = snap.docs.map(doc => {
+            const d = doc.data();
+            return {
+              id:        doc.id,
+              title:     d.title     || '',
+              author:    d.author    || '',
+              year:      d.year      || new Date().getFullYear(),
+              status:    d.status    || 'next',
+              progress:  d.progress  ?? 0,
+              rating:    d.rating    || null,
+              tags:      Array.isArray(d.tags) ? d.tags : [],
+              note:      d.note      || '',
+              color:       d.color       || 'from-zinc-700 to-zinc-900',
+              dateAdded:   d.dateAdded   || null,
+              createdAt:   d.createdAt   || null,
+              summaryLink: d.summaryLink || null,
+            };
+          });
+        } else {
+          // Firestore empty — use fallback data
+          BOOKS = _FALLBACK_BOOKS;
+        }
+      } catch (err) {
+        console.error('Failed to load books from Firestore:', err);
+        BOOKS = _FALLBACK_BOOKS;
+      }
+
+      buildTagFilters();
+      render();
+      setTimeout(updateStats, 300);
+    }
+
+    init();
   </script>
 </body>
 </html>
