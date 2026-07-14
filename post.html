@@ -3,8 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <title id="page-title">Loading… — Nanigah Caleb</title>
   <meta id="meta-desc" name="description" content="" />
+  <meta name="author" content="Nanigah Caleb" />
+  <meta name="robots" content="index, follow" />
+  <link id="canonical-url" rel="canonical" href="https://nanigahcaleb.com/blog.html" />
+
+  <!-- Open Graph (populated dynamically) -->
+  <meta id="og-title" property="og:title" content="Blog Post — Nanigah Caleb" />
+  <meta id="og-desc" property="og:description" content="" />
+  <meta property="og:type" content="article" />
+  <meta id="og-url" property="og:url" content="https://nanigahcaleb.com/post.html" />
+  <meta property="og:image" content="https://nanigahcaleb.com/og-image.png" />
+  <meta property="og:site_name" content="Nanigah Caleb" />
+  <meta property="article:author" content="Nanigah Caleb" />
+
+  <!-- Twitter Card (populated dynamically) -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta id="tw-title" name="twitter:title" content="Blog Post — Nanigah Caleb" />
+  <meta id="tw-desc" name="twitter:description" content="" />
+  <meta name="twitter:image" content="https://nanigahcaleb.com/og-image.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
@@ -385,7 +404,15 @@
 
         // Meta
         document.getElementById('page-title').textContent = `${d.title} — Nanigah Caleb`;
-        document.getElementById('meta-desc').setAttribute('content', d.excerpt || '');
+        const excerpt = d.excerpt || '';
+        document.getElementById('meta-desc').setAttribute('content', excerpt);
+        document.getElementById('og-title').setAttribute('content', `${d.title} — Nanigah Caleb`);
+        document.getElementById('og-desc').setAttribute('content', excerpt);
+        document.getElementById('tw-title').setAttribute('content', `${d.title} — Nanigah Caleb`);
+        document.getElementById('tw-desc').setAttribute('content', excerpt);
+        const postUrl = `https://nanigahcaleb.com/post.html?id=${encodeURIComponent(d.slug || d.id || '')}`;
+        document.getElementById('og-url').setAttribute('content', postUrl);
+        document.getElementById('canonical-url').setAttribute('href', postUrl);
 
         // Banner gradient
         const banner = document.getElementById('post-banner');
