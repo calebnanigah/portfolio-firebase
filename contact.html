@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#FAFAFA" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <title>Hire Nanigah Caleb — Senior QA Engineer & Web Developer | Contact</title>
 
@@ -47,6 +48,54 @@
       },
       "availableForHire": true
     }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Do you work remotely?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes — I'm based in Accra, Ghana (GMT) and have worked remotely for years with teams in the UK, Canada, and across Africa. I'm comfortable overlapping with European and North American time zones."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What's your availability?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "I'm open to freelance, consulting, and full-time engagements. I reply to every message within 24 hours, and for project work I can usually start a discovery conversation within the same week."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What services do you offer?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "QA strategy and test automation (Playwright, Cypress, Selenium), API and performance testing (Postman, JMeter, k6), CI/CD pipeline integration, and full-stack web development with Laravel, Vue.js, and Tailwind CSS."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which industries do you know best?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Healthcare, fintech, edtech, and sports/entertainment tech — platforms serving over 1M users. With my petroleum engineering background and MSc in Energy & Sustainable Management, I'm especially strong in energy tech and ESG software."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do we start a project together?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Send me a message through the contact form with a short brief. We'll have a quick discovery call to understand your goals, then I'll send a clear proposal with scope, timeline, and deliverables — no obligation."
+        }
+      }
+    ]
   }
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -135,6 +184,39 @@
       background: #18181B !important;
       color: #fff !important;
     }
+  
+    /* FAQ accordion */
+    .faq-item summary { list-style: none; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-chevron { transition: transform .3s cubic-bezier(0.16,1,0.3,1); }
+    .faq-item[open] .faq-chevron { transform: rotate(180deg); }
+    .faq-item[open] { border-color: #A1A1AA; }
+    .faq-item[open] .faq-body { animation: faqIn .35s cubic-bezier(0.16,1,0.3,1); }
+    @keyframes faqIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      .faq-item[open] .faq-body { animation: none; }
+      .faq-chevron { transition: none; }
+    }
+
+    /* Hamburger → X */
+    #menu-btn span { transition: transform .3s cubic-bezier(0.16,1,0.3,1), opacity .2s ease, width .3s ease; }
+    #menu-btn.open #bar1 { transform: translateY(8px) rotate(45deg); }
+    #menu-btn.open #bar2 { opacity: 0; transform: scaleX(0); }
+    #menu-btn.open #bar3 { width: 1.25rem; transform: translateY(-8px) rotate(-45deg); }
+    @media (prefers-reduced-motion: reduce) { #menu-btn span { transition: none; } }
+
+    /* Mobile menu open: lock page scroll + staggered link entrance */
+    body.menu-open { overflow: hidden; }
+    #mobile-menu.open a { animation: menuItemIn .4s cubic-bezier(0.16,1,0.3,1) both; }
+    #mobile-menu.open a:nth-child(1) { animation-delay: .03s; }
+    #mobile-menu.open a:nth-child(2) { animation-delay: .06s; }
+    #mobile-menu.open a:nth-child(3) { animation-delay: .09s; }
+    #mobile-menu.open a:nth-child(4) { animation-delay: .12s; }
+    #mobile-menu.open a:nth-child(5) { animation-delay: .15s; }
+    #mobile-menu.open a:nth-child(6) { animation-delay: .18s; }
+    #mobile-menu.open a:nth-child(7) { animation-delay: .21s; }
+    @keyframes menuItemIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { #mobile-menu.open a { animation: none; } }
   </style>
 </head>
 <body class="antialiased overflow-x-hidden">
@@ -194,26 +276,6 @@
         <div class="lg:col-span-2">
           <!-- Contact methods -->
           <div data-animate class="space-y-4 mb-10">
-            <a href="mailto:calebna4@gmail.com" class="flex items-center gap-4 p-4 bg-white border border-zinc-200 rounded-2xl hover:border-zinc-400 hover:shadow-sm transition-all cursor-pointer group">
-              <div class="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-blue-100 transition-colors">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-              </div>
-              <div>
-                <p class="text-xs text-zinc-400 font-medium mb-0.5">Email</p>
-                <p class="text-zinc-950 text-sm font-medium">calebna4@gmail.com</p>
-              </div>
-            </a>
-
-            <a href="tel:+233573193593" class="flex items-center gap-4 p-4 bg-white border border-zinc-200 rounded-2xl hover:border-zinc-400 hover:shadow-sm transition-all cursor-pointer group">
-              <div class="w-11 h-11 bg-emerald-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-100 transition-colors">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6.29 6.29l1.14-1.85a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-              </div>
-              <div>
-                <p class="text-xs text-zinc-400 font-medium mb-0.5">Phone</p>
-                <p class="text-zinc-950 text-sm font-medium">+233 57 319 3593</p>
-              </div>
-            </a>
-
             <a href="https://linkedin.com/in/caleb-nanigah" target="_blank" rel="noopener noreferrer" class="flex items-center gap-4 p-4 bg-white border border-zinc-200 rounded-2xl hover:border-zinc-400 hover:shadow-sm transition-all cursor-pointer group">
               <div class="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-blue-100 transition-colors">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="#2563EB"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
@@ -244,25 +306,6 @@
               </div>
             </a>
 
-            <a href="https://facebook.com/caleb.nanigah" target="_blank" rel="noopener noreferrer" class="flex items-center gap-4 p-4 bg-white border border-zinc-200 rounded-2xl hover:border-zinc-400 hover:shadow-sm transition-all cursor-pointer group">
-              <div class="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-blue-100 transition-colors">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-              </div>
-              <div>
-                <p class="text-xs text-zinc-400 font-medium mb-0.5">Facebook</p>
-                <p class="text-zinc-950 text-sm font-medium">facebook.com/caleb.nanigah</p>
-              </div>
-            </a>
-
-            <a href="https://instagram.com/calebbubune" target="_blank" rel="noopener noreferrer" class="flex items-center gap-4 p-4 bg-white border border-zinc-200 rounded-2xl hover:border-zinc-400 hover:shadow-sm transition-all cursor-pointer group">
-              <div class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:opacity-80 transition-opacity" style="background: linear-gradient(135deg, #f9ce34, #ee2a7b, #6228d7);">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-              </div>
-              <div>
-                <p class="text-xs text-zinc-400 font-medium mb-0.5">Instagram</p>
-                <p class="text-zinc-950 text-sm font-medium">@calebbubune</p>
-              </div>
-            </a>
           </div>
 
           <!-- Availability card -->
@@ -281,7 +324,7 @@
         <div class="lg:col-span-3">
           <div data-animate class="bg-white border border-zinc-200 rounded-3xl p-8 sm:p-10">
             <h2 class="font-heading font-bold text-zinc-950 text-2xl mb-2">Send a message</h2>
-            <p class="text-zinc-500 text-sm mb-8">Fill out the form and I'll get back to you within 24 hours.</p>
+            <p class="text-zinc-500 text-sm mb-8">I value your message — I read every one personally, and I'll get back to you within 24 hours.</p>
 
             <!-- Success message -->
             <div id="success-message" class="hidden items-center gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-xl mb-6">
@@ -349,7 +392,7 @@
                 </select>
               </div>
 
-              <div class="mb-8">
+              <div class="mb-5">
                 <label for="message" class="block text-sm font-medium text-zinc-700 mb-2">Message <span class="text-red-500">*</span></label>
                 <textarea
                   id="message"
@@ -359,6 +402,10 @@
                   class="form-input"
                 ></textarea>
                 <p class="text-red-500 text-xs mt-1.5 hidden" id="message-error">Please enter a message.</p>
+              </div>
+
+              <div class="mb-8">
+                <div class="h-captcha" data-captcha="true"></div>
               </div>
 
               <button
@@ -373,6 +420,68 @@
             </form>
           </div>
         </div>
+
+      </div>
+    </section>
+
+    <!-- ===== FAQ ===== -->
+    <section class="px-4 sm:px-6 lg:px-8 pb-32 max-w-3xl mx-auto">
+      <div data-animate class="text-center mb-10">
+        <p class="text-blue-600 text-sm font-medium mb-2">Before you ask</p>
+        <h2 class="font-heading font-bold text-zinc-950 text-3xl sm:text-4xl tracking-tight">Frequently asked questions</h2>
+      </div>
+
+      <div data-animate data-animate-delay="1" class="space-y-3">
+
+        <details class="faq-item group bg-white border border-zinc-200 rounded-2xl overflow-hidden">
+          <summary class="flex items-center justify-between gap-4 px-6 py-5 cursor-pointer select-none">
+            <span class="font-heading font-semibold text-zinc-950 text-base">Do you work remotely?</span>
+            <svg class="faq-chevron flex-shrink-0 text-zinc-400" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <div class="faq-body px-6 pb-5">
+            <p class="text-zinc-500 text-sm leading-relaxed">Yes — I'm based in Accra, Ghana (GMT) and have worked remotely for years with teams in the UK, Canada, and across Africa. I'm comfortable overlapping with European and North American time zones.</p>
+          </div>
+        </details>
+
+        <details class="faq-item group bg-white border border-zinc-200 rounded-2xl overflow-hidden">
+          <summary class="flex items-center justify-between gap-4 px-6 py-5 cursor-pointer select-none">
+            <span class="font-heading font-semibold text-zinc-950 text-base">What's your availability?</span>
+            <svg class="faq-chevron flex-shrink-0 text-zinc-400" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <div class="faq-body px-6 pb-5">
+            <p class="text-zinc-500 text-sm leading-relaxed">I'm open to freelance, consulting, and full-time engagements. I reply to every message within 24 hours, and for project work I can usually start a discovery conversation within the same week.</p>
+          </div>
+        </details>
+
+        <details class="faq-item group bg-white border border-zinc-200 rounded-2xl overflow-hidden">
+          <summary class="flex items-center justify-between gap-4 px-6 py-5 cursor-pointer select-none">
+            <span class="font-heading font-semibold text-zinc-950 text-base">What services do you offer?</span>
+            <svg class="faq-chevron flex-shrink-0 text-zinc-400" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <div class="faq-body px-6 pb-5">
+            <p class="text-zinc-500 text-sm leading-relaxed">QA strategy and test automation (Playwright, Cypress, Selenium), API and performance testing (Postman, JMeter, k6), CI/CD pipeline integration, and full-stack web development with Laravel, Vue.js, and Tailwind CSS.</p>
+          </div>
+        </details>
+
+        <details class="faq-item group bg-white border border-zinc-200 rounded-2xl overflow-hidden">
+          <summary class="flex items-center justify-between gap-4 px-6 py-5 cursor-pointer select-none">
+            <span class="font-heading font-semibold text-zinc-950 text-base">Which industries do you know best?</span>
+            <svg class="faq-chevron flex-shrink-0 text-zinc-400" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <div class="faq-body px-6 pb-5">
+            <p class="text-zinc-500 text-sm leading-relaxed">Healthcare, fintech, edtech, and sports/entertainment tech — platforms serving over 1M users. With my petroleum engineering background and MSc in Energy &amp; Sustainable Management, I'm especially strong in energy tech and ESG software.</p>
+          </div>
+        </details>
+
+        <details class="faq-item group bg-white border border-zinc-200 rounded-2xl overflow-hidden">
+          <summary class="flex items-center justify-between gap-4 px-6 py-5 cursor-pointer select-none">
+            <span class="font-heading font-semibold text-zinc-950 text-base">How do we start a project together?</span>
+            <svg class="faq-chevron flex-shrink-0 text-zinc-400" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <div class="faq-body px-6 pb-5">
+            <p class="text-zinc-500 text-sm leading-relaxed">Send me a message through the form above with a short brief. We'll have a quick discovery call to understand your goals, then I'll send a clear proposal with scope, timeline, and deliverables — no obligation.</p>
+          </div>
+        </details>
 
       </div>
     </section>
@@ -423,23 +532,23 @@
     // Mobile menu
     const menuBtn = document.getElementById('menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
-    const bar1 = document.getElementById('bar1');
-    const bar3 = document.getElementById('bar3');
     let menuOpen = false;
-    menuBtn.addEventListener('click', () => {
-      menuOpen = !menuOpen;
-      if (menuOpen) {
-        mobileMenu.classList.remove('hidden');
-        mobileMenu.classList.add('open');
-        bar1.style.transform = 'rotate(45deg) translate(4px, 4px)';
-        bar3.style.transform = 'rotate(-45deg) translate(4px, -4px)';
-      } else {
-        mobileMenu.classList.remove('open');
-        mobileMenu.classList.add('hidden');
-        bar1.style.transform = '';
-        bar3.style.transform = '';
-      }
+    function setMenu(open) {
+      menuOpen = open;
+      mobileMenu.classList.toggle('open', open);
+      mobileMenu.classList.toggle('hidden', !open);
+      menuBtn.classList.toggle('open', open);
+      document.body.classList.toggle('menu-open', open);
+      menuBtn.setAttribute('aria-expanded', String(open));
+    }
+    menuBtn.addEventListener('click', () => setMenu(!menuOpen));
+    // Close on link tap, outside tap, Escape, or resize to desktop
+    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+    document.addEventListener('click', (e) => {
+      if (menuOpen && !mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) setMenu(false);
     });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && menuOpen) setMenu(false); });
+    window.addEventListener('resize', () => { if (menuOpen && window.innerWidth >= 768) setMenu(false); });
 
     // Form validation and submit
     const form = document.getElementById('contact-form');
@@ -523,9 +632,10 @@
         btnArrow.classList.remove('hidden');
         btnSpinner.classList.add('hidden');
         submitBtn.disabled = false;
-        alert('Sorry, there was an error sending your message. Please try again or email directly.');
+        alert('Sorry, there was an error sending your message. Please try again in a moment.');
       }
     });
   </script>
+  <script src="https://web3forms.com/client/script.js" async defer></script>
 </body>
 </html>

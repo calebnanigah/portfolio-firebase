@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#FAFAFA" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <title>Blog — Nanigah Caleb | QA Engineering, Test Automation & Software Development</title>
 
@@ -50,6 +51,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-check-compat.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -145,6 +147,26 @@
       background: #18181B !important;
       color: #fff !important;
     }
+  
+    /* Hamburger → X */
+    #menu-btn span { transition: transform .3s cubic-bezier(0.16,1,0.3,1), opacity .2s ease, width .3s ease; }
+    #menu-btn.open #bar1 { transform: translateY(8px) rotate(45deg); }
+    #menu-btn.open #bar2 { opacity: 0; transform: scaleX(0); }
+    #menu-btn.open #bar3 { width: 1.25rem; transform: translateY(-8px) rotate(-45deg); }
+    @media (prefers-reduced-motion: reduce) { #menu-btn span { transition: none; } }
+
+    /* Mobile menu open: lock page scroll + staggered link entrance */
+    body.menu-open { overflow: hidden; }
+    #mobile-menu.open a { animation: menuItemIn .4s cubic-bezier(0.16,1,0.3,1) both; }
+    #mobile-menu.open a:nth-child(1) { animation-delay: .03s; }
+    #mobile-menu.open a:nth-child(2) { animation-delay: .06s; }
+    #mobile-menu.open a:nth-child(3) { animation-delay: .09s; }
+    #mobile-menu.open a:nth-child(4) { animation-delay: .12s; }
+    #mobile-menu.open a:nth-child(5) { animation-delay: .15s; }
+    #mobile-menu.open a:nth-child(6) { animation-delay: .18s; }
+    #mobile-menu.open a:nth-child(7) { animation-delay: .21s; }
+    @keyframes menuItemIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { #mobile-menu.open a { animation: none; } }
   </style>
 </head>
 <body class="antialiased overflow-x-hidden">
@@ -358,23 +380,23 @@
     // ── Mobile menu ──────────────────────────────────────────────
     const menuBtn = document.getElementById('menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
-    const bar1 = document.getElementById('bar1');
-    const bar3 = document.getElementById('bar3');
     let menuOpen = false;
-    menuBtn.addEventListener('click', () => {
-      menuOpen = !menuOpen;
-      if (menuOpen) {
-        mobileMenu.classList.remove('hidden');
-        mobileMenu.classList.add('open');
-        bar1.style.transform = 'rotate(45deg) translate(4px, 4px)';
-        bar3.style.transform = 'rotate(-45deg) translate(4px, -4px)';
-      } else {
-        mobileMenu.classList.remove('open');
-        mobileMenu.classList.add('hidden');
-        bar1.style.transform = '';
-        bar3.style.transform = '';
-      }
+    function setMenu(open) {
+      menuOpen = open;
+      mobileMenu.classList.toggle('open', open);
+      mobileMenu.classList.toggle('hidden', !open);
+      menuBtn.classList.toggle('open', open);
+      document.body.classList.toggle('menu-open', open);
+      menuBtn.setAttribute('aria-expanded', String(open));
+    }
+    menuBtn.addEventListener('click', () => setMenu(!menuOpen));
+    // Close on link tap, outside tap, Escape, or resize to desktop
+    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+    document.addEventListener('click', (e) => {
+      if (menuOpen && !mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) setMenu(false);
     });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && menuOpen) setMenu(false); });
+    window.addEventListener('resize', () => { if (menuOpen && window.innerWidth >= 768) setMenu(false); });
 
     // ── Newsletter form ──────────────────────────────────────────
     const newsletterForm = document.getElementById('newsletter-form');
@@ -401,6 +423,12 @@
         newsletterForm.style.display = 'none';
         newsletterSuccess.classList.remove('hidden');
       } catch (err) {
+        if (err && err.code === 'permission-denied') {
+          // Create-only rules: doc already exists → already subscribed
+          newsletterForm.style.display = 'none';
+          newsletterSuccess.classList.remove('hidden');
+          return;
+        }
         console.error('Subscribe failed:', err);
         newsletterError.textContent = 'Something went wrong. Please try again.';
         newsletterError.classList.remove('hidden');
@@ -420,6 +448,14 @@
       measurementId: "G-JR9EFB01Q8"
     };
     firebase.initializeApp(firebaseConfig);
+
+    // ── App Check (bot protection) ─────────────────────────────────────────
+    // Paste your reCAPTCHA v3 SITE key below to enable (see admin/firebase-setup.md).
+    // Leave empty to keep App Check disabled.
+    const APP_CHECK_SITE_KEY = '';
+    if (APP_CHECK_SITE_KEY) {
+      firebase.appCheck().activate(APP_CHECK_SITE_KEY, /* autoRefresh */ true);
+    }
     const db = firebase.firestore();
 
     // ── Category config ──────────────────────────────────────────

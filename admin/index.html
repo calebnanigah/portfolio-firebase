@@ -427,6 +427,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-check-compat.js"></script>
   <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 
   <script>
@@ -445,6 +446,14 @@ const firebaseConfig = {
 };
 
     firebase.initializeApp(firebaseConfig);
+
+    // ── App Check (bot protection) ─────────────────────────────────────────
+    // Paste your reCAPTCHA v3 SITE key below to enable (see admin/firebase-setup.md).
+    // Leave empty to keep App Check disabled.
+    const APP_CHECK_SITE_KEY = '';
+    if (APP_CHECK_SITE_KEY) {
+      firebase.appCheck().activate(APP_CHECK_SITE_KEY, /* autoRefresh */ true);
+    }
     const auth = firebase.auth();
     const db   = firebase.firestore();
 

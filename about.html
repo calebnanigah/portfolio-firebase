@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#FAFAFA" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <title>About Nanigah Caleb — QA Lead, Automation Expert & Web Developer | Ghana</title>
 
@@ -151,6 +152,26 @@
       background: #18181B !important;
       color: #fff !important;
     }
+  
+    /* Hamburger → X */
+    #menu-btn span { transition: transform .3s cubic-bezier(0.16,1,0.3,1), opacity .2s ease, width .3s ease; }
+    #menu-btn.open #bar1 { transform: translateY(8px) rotate(45deg); }
+    #menu-btn.open #bar2 { opacity: 0; transform: scaleX(0); }
+    #menu-btn.open #bar3 { width: 1.25rem; transform: translateY(-8px) rotate(-45deg); }
+    @media (prefers-reduced-motion: reduce) { #menu-btn span { transition: none; } }
+
+    /* Mobile menu open: lock page scroll + staggered link entrance */
+    body.menu-open { overflow: hidden; }
+    #mobile-menu.open a { animation: menuItemIn .4s cubic-bezier(0.16,1,0.3,1) both; }
+    #mobile-menu.open a:nth-child(1) { animation-delay: .03s; }
+    #mobile-menu.open a:nth-child(2) { animation-delay: .06s; }
+    #mobile-menu.open a:nth-child(3) { animation-delay: .09s; }
+    #mobile-menu.open a:nth-child(4) { animation-delay: .12s; }
+    #mobile-menu.open a:nth-child(5) { animation-delay: .15s; }
+    #mobile-menu.open a:nth-child(6) { animation-delay: .18s; }
+    #mobile-menu.open a:nth-child(7) { animation-delay: .21s; }
+    @keyframes menuItemIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { #mobile-menu.open a { animation: none; } }
   </style>
 </head>
 <body class="antialiased overflow-x-hidden">
@@ -448,6 +469,39 @@
       </div>
     </section>
 
+    <!-- CERTIFICATIONS -->
+    <section class="px-4 sm:px-6 lg:px-8 py-24 max-w-7xl mx-auto">
+      <p data-animate class="text-blue-600 text-sm font-medium mb-3 text-center">Credentials</p>
+      <h2 data-animate data-animate-delay="1" class="font-heading font-bold text-zinc-950 text-3xl sm:text-5xl tracking-tight mb-14 text-center">Certifications</h2>
+
+      <div data-animate data-animate-delay="2" class="max-w-2xl mx-auto">
+        <!-- ISTQB CTFL -->
+        <div class="relative bg-white border border-zinc-200 rounded-3xl p-8 sm:p-10 flex flex-col sm:flex-row items-center sm:items-start gap-6 hover:shadow-xl hover:border-zinc-300 transition-all duration-300 overflow-hidden">
+          <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center flex-shrink-0">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
+          <div class="text-center sm:text-left">
+            <h3 class="font-heading font-bold text-zinc-950 text-xl sm:text-2xl tracking-tight mb-1.5">ISTQB® Certified Tester — Foundation Level (CTFL)</h3>
+            <p class="text-zinc-400 text-xs font-medium uppercase tracking-widest mb-3">International Software Testing Qualifications Board</p>
+            <p class="text-zinc-500 text-sm leading-relaxed">The globally recognised standard for software testing professionals — covering test design techniques, risk-based testing, defect management, and test process fundamentals.</p>
+          </div>
+        </div>
+
+        <!-- Supporting academic credentials -->
+        <div class="flex flex-wrap items-center justify-center gap-3 mt-6">
+          <span class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-100 text-zinc-600 text-sm font-medium rounded-xl">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            BSc Petroleum Engineering — KNUST
+          </span>
+          <span class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-100 text-zinc-600 text-sm font-medium rounded-xl">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            MSc Energy &amp; Sustainable Management — in progress
+          </span>
+        </div>
+      </div>
+    </section>
+
     <!-- VALUES -->
     <section class="px-4 sm:px-6 lg:px-8 py-24 max-w-7xl mx-auto">
       <p data-animate class="text-blue-600 text-sm font-medium mb-3 text-center">What I believe in</p>
@@ -548,23 +602,23 @@
     // Mobile menu
     const menuBtn = document.getElementById('menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
-    const bar1 = document.getElementById('bar1');
-    const bar3 = document.getElementById('bar3');
     let menuOpen = false;
-    menuBtn.addEventListener('click', () => {
-      menuOpen = !menuOpen;
-      if (menuOpen) {
-        mobileMenu.classList.remove('hidden');
-        mobileMenu.classList.add('open');
-        bar1.style.transform = 'rotate(45deg) translate(4px, 4px)';
-        bar3.style.transform = 'rotate(-45deg) translate(4px, -4px)';
-      } else {
-        mobileMenu.classList.remove('open');
-        mobileMenu.classList.add('hidden');
-        bar1.style.transform = '';
-        bar3.style.transform = '';
-      }
+    function setMenu(open) {
+      menuOpen = open;
+      mobileMenu.classList.toggle('open', open);
+      mobileMenu.classList.toggle('hidden', !open);
+      menuBtn.classList.toggle('open', open);
+      document.body.classList.toggle('menu-open', open);
+      menuBtn.setAttribute('aria-expanded', String(open));
+    }
+    menuBtn.addEventListener('click', () => setMenu(!menuOpen));
+    // Close on link tap, outside tap, Escape, or resize to desktop
+    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+    document.addEventListener('click', (e) => {
+      if (menuOpen && !mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) setMenu(false);
     });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && menuOpen) setMenu(false); });
+    window.addEventListener('resize', () => { if (menuOpen && window.innerWidth >= 768) setMenu(false); });
   </script>
 </body>
 </html>

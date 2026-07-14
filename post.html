@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#FAFAFA" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <title id="page-title">Loading… — Nanigah Caleb</title>
   <meta id="meta-desc" name="description" content="" />
@@ -110,9 +111,37 @@
     .comment-submit { display:inline-flex; align-items:center; gap:.5rem; padding:.625rem 1.375rem; border-radius:.75rem; font-size:.875rem; font-weight:600; background:#18181B; color:#fff; border:none; cursor:pointer; transition: background .15s ease; }
     .comment-submit:hover:not(:disabled) { background:#3F3F46; }
     .comment-submit:disabled { opacity:.5; cursor:not-allowed; }
+  
+    /* Reading progress bar */
+    #read-progress {
+      position: fixed; top: 0; left: 0; height: 3px; width: 0;
+      background: linear-gradient(90deg, #2563EB, #7C3AED);
+      z-index: 60;
+    }
+
+    /* Hamburger → X */
+    #menu-btn span { transition: transform .3s cubic-bezier(0.16,1,0.3,1), opacity .2s ease, width .3s ease; }
+    #menu-btn.open #bar1 { transform: translateY(8px) rotate(45deg); }
+    #menu-btn.open #bar2 { opacity: 0; transform: scaleX(0); }
+    #menu-btn.open #bar3 { width: 1.25rem; transform: translateY(-8px) rotate(-45deg); }
+    @media (prefers-reduced-motion: reduce) { #menu-btn span { transition: none; } }
+
+    /* Mobile menu open: lock page scroll + staggered link entrance */
+    body.menu-open { overflow: hidden; }
+    #mobile-menu.open a { animation: menuItemIn .4s cubic-bezier(0.16,1,0.3,1) both; }
+    #mobile-menu.open a:nth-child(1) { animation-delay: .03s; }
+    #mobile-menu.open a:nth-child(2) { animation-delay: .06s; }
+    #mobile-menu.open a:nth-child(3) { animation-delay: .09s; }
+    #mobile-menu.open a:nth-child(4) { animation-delay: .12s; }
+    #mobile-menu.open a:nth-child(5) { animation-delay: .15s; }
+    #mobile-menu.open a:nth-child(6) { animation-delay: .18s; }
+    #mobile-menu.open a:nth-child(7) { animation-delay: .21s; }
+    @keyframes menuItemIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { #mobile-menu.open a { animation: none; } }
   </style>
 </head>
 <body class="antialiased overflow-x-hidden">
+  <div id="read-progress" aria-hidden="true"></div>
 
   <!-- Draft banner (shown only for unpublished posts) -->
   <div id="draft-banner" class="hidden">
@@ -351,6 +380,9 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-check-compat.js"></script>
+  <!-- Sanitizes post HTML before rendering (defense-in-depth against stored XSS) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
 
   <script>
     // ── Firebase config — same as admin.html ──────────────────────────────────
@@ -364,6 +396,14 @@
     };
 
     firebase.initializeApp(firebaseConfig);
+
+    // ── App Check (bot protection) ─────────────────────────────────────────
+    // Paste your reCAPTCHA v3 SITE key below to enable (see admin/firebase-setup.md).
+    // Leave empty to keep App Check disabled.
+    const APP_CHECK_SITE_KEY = '';
+    if (APP_CHECK_SITE_KEY) {
+      firebase.appCheck().activate(APP_CHECK_SITE_KEY, /* autoRefresh */ true);
+    }
     const db = firebase.firestore();
 
     // ── Get post ID from URL (?id=DOCID) ──────────────────────────────────────
@@ -431,17 +471,37 @@
         document.getElementById('post-title').textContent   = d.title;
         document.getElementById('post-excerpt').textContent = d.excerpt;
 
-        // Body (HTML from Quill)
-        document.getElementById('post-body').innerHTML = d.content || '<p class="text-zinc-400">No content yet.</p>';
+        // Body (HTML from Quill) — sanitized before injection
+        const rawContent = d.content || '<p class="text-zinc-400">No content yet.</p>';
+        document.getElementById('post-body').innerHTML =
+          window.DOMPurify ? DOMPurify.sanitize(rawContent) : rawContent;
 
         // Tags
         const tags = Array.isArray(d.tags) ? d.tags.filter(Boolean) : [];
         if (tags.length) {
           document.getElementById('post-tags-row').classList.remove('hidden');
           document.getElementById('post-tags').innerHTML = tags
-            .map(t => `<span class="post-tag">#${t}</span>`)
+            .map(t => `<span class="post-tag">#${escapeHTML(String(t))}</span>`)
             .join('');
         }
+
+        // SEO: inject BlogPosting structured data
+        const ldScript = document.createElement('script');
+        ldScript.type = 'application/ld+json';
+        ldScript.textContent = JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          "headline": d.title,
+          "description": excerpt,
+          "datePublished": d.date || undefined,
+          "dateModified": (d.updatedAt && d.updatedAt.toDate ? d.updatedAt.toDate().toISOString().split('T')[0] : d.date) || undefined,
+          "keywords": tags.join(', ') || undefined,
+          "url": postUrl,
+          "mainEntityOfPage": { "@type": "WebPage", "@id": postUrl },
+          "author": { "@type": "Person", "name": "Nanigah Caleb", "url": "https://nanigahcaleb.com/" },
+          "publisher": { "@type": "Person", "name": "Nanigah Caleb", "url": "https://nanigahcaleb.com/" }
+        });
+        document.head.appendChild(ldScript);
 
         // Share URLs
         const pageUrl  = encodeURIComponent(window.location.href);
@@ -515,17 +575,17 @@
 
         document.getElementById('more-posts-grid').innerHTML = docs.map(doc => {
           const d   = doc.data();
-          const url = d.slug || `post.html?id=${doc.id}`;
+          const url = escapeHTML(d.slug || `post.html?id=${doc.id}`);
           const grad = gradients[d.gradient] || 'from-blue-500 to-indigo-600';
           return `
             <a href="${url}" class="more-card">
               <div class="h-2 bg-gradient-to-r ${grad}"></div>
               <div class="p-5 flex flex-col flex-1">
                 <div class="mb-3">
-                  <span class="text-xs font-semibold px-2 py-0.5 rounded-md border ${catColor[d.category] || 'bg-zinc-100 text-zinc-600 border-zinc-200'}">${catLabel[d.category] || d.category}</span>
+                  <span class="text-xs font-semibold px-2 py-0.5 rounded-md border ${catColor[d.category] || 'bg-zinc-100 text-zinc-600 border-zinc-200'}">${catLabel[d.category] || escapeHTML(String(d.category || ''))}</span>
                 </div>
-                <h3 class="font-heading font-bold text-zinc-950 text-base leading-snug mb-2 flex-1">${d.title}</h3>
-                <p class="text-zinc-400 text-xs">${d.date || ''}${d.date && d.readtime ? ' · ' : ''}${d.readtime ? d.readtime + ' min read' : ''}</p>
+                <h3 class="font-heading font-bold text-zinc-950 text-base leading-snug mb-2 flex-1">${escapeHTML(String(d.title || ''))}</h3>
+                <p class="text-zinc-400 text-xs">${escapeHTML(String(d.date || ''))}${d.date && d.readtime ? ' · ' : ''}${d.readtime ? parseInt(d.readtime, 10) + ' min read' : ''}</p>
               </div>
             </a>`;
         }).join('');
@@ -562,17 +622,25 @@
     }
 
     // ── Mobile menu ───────────────────────────────────────────────────────────
-    const menuBtn  = document.getElementById('menu-btn');
+    const menuBtn = document.getElementById('menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
-    const bar1 = document.getElementById('bar1');
-    const bar3 = document.getElementById('bar3');
-    menuBtn.addEventListener('click', () => {
-      const open = mobileMenu.classList.contains('open');
-      mobileMenu.classList.toggle('open', !open);
-      mobileMenu.classList.toggle('hidden', open);
-      bar1.style.transform = open ? '' : 'rotate(45deg) translate(4px, 4px)';
-      bar3.style.transform = open ? '' : 'rotate(-45deg) translate(3px, -3px)';
+    let menuOpen = false;
+    function setMenu(open) {
+      menuOpen = open;
+      mobileMenu.classList.toggle('open', open);
+      mobileMenu.classList.toggle('hidden', !open);
+      menuBtn.classList.toggle('open', open);
+      document.body.classList.toggle('menu-open', open);
+      menuBtn.setAttribute('aria-expanded', String(open));
+    }
+    menuBtn.addEventListener('click', () => setMenu(!menuOpen));
+    // Close on link tap, outside tap, Escape, or resize to desktop
+    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+    document.addEventListener('click', (e) => {
+      if (menuOpen && !mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) setMenu(false);
     });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && menuOpen) setMenu(false); });
+    window.addEventListener('resize', () => { if (menuOpen && window.innerWidth >= 768) setMenu(false); });
 
     // ── Reactions (like / dislike) ────────────────────────────────────────────
     const VOTE_KEY = postId ? `vote_${postId}` : null;
@@ -729,6 +797,14 @@
         setTimeout(() => { if (status.textContent === 'Comment posted!') status.textContent = ''; }, 3000);
       }
     }
+
+    // ── Reading progress bar ──────────────────────────────────────────────────
+    const progressEl = document.getElementById('read-progress');
+    window.addEventListener('scroll', () => {
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      progressEl.style.width = max > 0 ? (h.scrollTop / max * 100) + '%' : '0%';
+    }, { passive: true });
 
     // ── Scroll animations ─────────────────────────────────────────────────────
     const observer = new IntersectionObserver(entries => {

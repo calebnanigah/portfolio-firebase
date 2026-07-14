@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#FAFAFA" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <title>Work & Projects — Nanigah Caleb | QA Engineering & Web Development</title>
 
@@ -110,6 +111,26 @@
       background: #18181B !important;
       color: #fff !important;
     }
+  
+    /* Hamburger → X */
+    #menu-btn span { transition: transform .3s cubic-bezier(0.16,1,0.3,1), opacity .2s ease, width .3s ease; }
+    #menu-btn.open #bar1 { transform: translateY(8px) rotate(45deg); }
+    #menu-btn.open #bar2 { opacity: 0; transform: scaleX(0); }
+    #menu-btn.open #bar3 { width: 1.25rem; transform: translateY(-8px) rotate(-45deg); }
+    @media (prefers-reduced-motion: reduce) { #menu-btn span { transition: none; } }
+
+    /* Mobile menu open: lock page scroll + staggered link entrance */
+    body.menu-open { overflow: hidden; }
+    #mobile-menu.open a { animation: menuItemIn .4s cubic-bezier(0.16,1,0.3,1) both; }
+    #mobile-menu.open a:nth-child(1) { animation-delay: .03s; }
+    #mobile-menu.open a:nth-child(2) { animation-delay: .06s; }
+    #mobile-menu.open a:nth-child(3) { animation-delay: .09s; }
+    #mobile-menu.open a:nth-child(4) { animation-delay: .12s; }
+    #mobile-menu.open a:nth-child(5) { animation-delay: .15s; }
+    #mobile-menu.open a:nth-child(6) { animation-delay: .18s; }
+    #mobile-menu.open a:nth-child(7) { animation-delay: .21s; }
+    @keyframes menuItemIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { #mobile-menu.open a { animation: none; } }
   </style>
 </head>
 <body class="antialiased overflow-x-hidden">
@@ -187,6 +208,11 @@
             <p class="text-zinc-500 text-sm leading-relaxed mb-5">
               Full-stack marketplace built from scratch — real-time inventory, payment processing, and a comprehensive admin dashboard. Live in production.
             </p>
+            <div class="flex items-center gap-4 mb-5">
+              <div><p class="font-heading font-bold text-zinc-950 text-sm">99.9%</p><p class="text-zinc-400 text-xs">uptime</p></div>
+              <div class="w-px h-7 bg-zinc-200"></div>
+              <div><p class="font-heading font-bold text-zinc-950 text-sm">0</p><p class="text-zinc-400 text-xs">critical bugs in prod</p></div>
+            </div>
             <div class="flex flex-wrap gap-2 mb-5">
               <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">Laravel</span>
               <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">Vue.js</span>
@@ -216,6 +242,11 @@
             <p class="text-zinc-500 text-sm leading-relaxed mb-5">
               AI-powered learning management system with Google Gemini integration. Reduced manual admin onboarding and support time by over 60%.
             </p>
+            <div class="flex items-center gap-4 mb-5">
+              <div><p class="font-heading font-bold text-zinc-950 text-sm">60%</p><p class="text-zinc-400 text-xs">faster onboarding</p></div>
+              <div class="w-px h-7 bg-zinc-200"></div>
+              <div><p class="font-heading font-bold text-zinc-950 text-sm">100+</p><p class="text-zinc-400 text-xs">active learners</p></div>
+            </div>
             <div class="flex flex-wrap gap-2 mb-5">
               <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">Laravel</span>
               <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">Google Gemini AI</span>
@@ -245,6 +276,11 @@
             <p class="text-zinc-500 text-sm leading-relaxed mb-5">
               Production-grade e-commerce storefront for an African fashion brand. Responsive, mobile-first design with a secure admin portal and order management system.
             </p>
+            <div class="flex items-center gap-4 mb-5">
+              <div><p class="font-heading font-bold text-zinc-950 text-sm">&lt;2s</p><p class="text-zinc-400 text-xs">page loads</p></div>
+              <div class="w-px h-7 bg-zinc-200"></div>
+              <div><p class="font-heading font-bold text-zinc-950 text-sm">100%</p><p class="text-zinc-400 text-xs">mobile-first</p></div>
+            </div>
             <div class="flex flex-wrap gap-2 mb-5">
               <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">Laravel</span>
               <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">Tailwind CSS</span>
@@ -273,6 +309,11 @@
             <p class="text-zinc-500 text-sm leading-relaxed mb-5">
               QA lead for high-traffic, real-time fan platforms — NBA Brackets Pick'EM, Premier League fan games, Konami Pick'EM. Coordinated testing across WNBA, NBA, FIFA &amp; EPL teams.
             </p>
+            <div class="flex items-center gap-4 mb-5">
+              <div><p class="font-heading font-bold text-zinc-950 text-sm">3</p><p class="text-zinc-400 text-xs">major launches</p></div>
+              <div class="w-px h-7 bg-zinc-200"></div>
+              <div><p class="font-heading font-bold text-zinc-950 text-sm">0</p><p class="text-zinc-400 text-xs">launch-day incidents</p></div>
+            </div>
             <div class="flex flex-wrap gap-2 mb-5">
               <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">Playwright</span>
               <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">Cypress</span>
@@ -299,6 +340,13 @@
             <p class="text-zinc-500 text-sm leading-relaxed mb-5">
               Led QA for humanitarian mobile/web platforms serving 1M+ users across Africa &amp; Asia, funded by USAID, UNDP, GIZ &amp; Oxfam. Achieved 90% regression coverage &amp; 60% defect reduction.
             </p>
+            <div class="flex items-center gap-4 mb-5">
+              <div><p class="font-heading font-bold text-zinc-950 text-sm">90%</p><p class="text-zinc-400 text-xs">regression coverage</p></div>
+              <div class="w-px h-7 bg-zinc-200"></div>
+              <div><p class="font-heading font-bold text-zinc-950 text-sm">60%</p><p class="text-zinc-400 text-xs">fewer defects</p></div>
+              <div class="w-px h-7 bg-zinc-200"></div>
+              <div><p class="font-heading font-bold text-zinc-950 text-sm">100+</p><p class="text-zinc-400 text-xs">sprints</p></div>
+            </div>
             <div class="flex flex-wrap gap-2 mb-5">
               <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">Selenium</span>
               <span class="px-2.5 py-1 bg-zinc-100 text-zinc-600 text-xs rounded-lg">Cypress</span>
@@ -391,23 +439,23 @@
     // Mobile menu
     const menuBtn = document.getElementById('menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');
-    const bar1 = document.getElementById('bar1');
-    const bar3 = document.getElementById('bar3');
     let menuOpen = false;
-    menuBtn.addEventListener('click', () => {
-      menuOpen = !menuOpen;
-      if (menuOpen) {
-        mobileMenu.classList.remove('hidden');
-        mobileMenu.classList.add('open');
-        bar1.style.transform = 'rotate(45deg) translate(4px, 4px)';
-        bar3.style.transform = 'rotate(-45deg) translate(4px, -4px)';
-      } else {
-        mobileMenu.classList.remove('open');
-        mobileMenu.classList.add('hidden');
-        bar1.style.transform = '';
-        bar3.style.transform = '';
-      }
+    function setMenu(open) {
+      menuOpen = open;
+      mobileMenu.classList.toggle('open', open);
+      mobileMenu.classList.toggle('hidden', !open);
+      menuBtn.classList.toggle('open', open);
+      document.body.classList.toggle('menu-open', open);
+      menuBtn.setAttribute('aria-expanded', String(open));
+    }
+    menuBtn.addEventListener('click', () => setMenu(!menuOpen));
+    // Close on link tap, outside tap, Escape, or resize to desktop
+    mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+    document.addEventListener('click', (e) => {
+      if (menuOpen && !mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) setMenu(false);
     });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && menuOpen) setMenu(false); });
+    window.addEventListener('resize', () => { if (menuOpen && window.innerWidth >= 768) setMenu(false); });
 
     // Project filter
     const filterBtns = document.querySelectorAll('.filter-btn');
