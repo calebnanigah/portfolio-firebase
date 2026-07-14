@@ -34,6 +34,8 @@
       theme: { extend: { fontFamily: { heading: ['Archivo','sans-serif'], sans: ['Space Grotesk','sans-serif'] } } }
     }
   </script>
+  <link rel="stylesheet" href="theme.css" />
+  <script src="theme.js"></script>
   <style>
     html { scroll-behavior: smooth; }
     body { background-color: #FAFAFA; color: #09090B; font-family: 'Space Grotesk', sans-serif; }
@@ -68,7 +70,7 @@
     .prose img { border-radius:.75rem; margin:1.75rem 0; max-width:100%; }
 
     /* Category pill */
-    .cat-qa    { background:#EFF6FF; color:#2563EB; border-color:#BFDBFE; }
+    .cat-qa    { background:var(--brand-50); color:var(--brand); border-color:var(--brand-200); }
     .cat-cyber { background:#FFF7ED; color:#C2410C; border-color:#FED7AA; }
     .cat-petro { background:#F0FDF4; color:#15803D; border-color:#BBF7D0; }
     .dot { width:3px; height:3px; border-radius:50%; background:#A1A1AA; display:inline-block; }
@@ -80,13 +82,13 @@
     .share-btn { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem 1rem; border-radius:.625rem; font-size:.8125rem; font-weight:600; border:1px solid; cursor:pointer; transition: all .15s ease; text-decoration:none; white-space:nowrap; }
     .share-twitter  { background:#fff; color:#09090B; border-color:#E4E4E7; }
     .share-twitter:hover  { background:#F9F9F9; border-color:#09090B; }
-    .share-linkedin { background:#fff; color:#0A66C2; border-color:#BFDBFE; }
-    .share-linkedin:hover { background:#EFF6FF; }
+    .share-linkedin { background:#fff; color:#0A66C2; border-color:var(--brand-200); }
+    .share-linkedin:hover { background:var(--brand-50); }
     .share-copy     { background:#fff; color:#52525B; border-color:#E4E4E7; }
     .share-copy:hover     { background:#F4F4F5; border-color:#D4D4D8; }
     .share-copy.copied    { background:#F0FDF4; color:#166534; border-color:#BBF7D0; }
-    .share-facebook { background:#fff; color:#1877F2; border-color:#BFDBFE; }
-    .share-facebook:hover { background:#EFF6FF; }
+    .share-facebook { background:#fff; color:#1877F2; border-color:var(--brand-200); }
+    .share-facebook:hover { background:var(--brand-50); }
     /* More posts cards */
     .more-card { background:#fff; border:1px solid #E4E4E7; border-radius:1rem; overflow:hidden; display:flex; flex-direction:column; transition: transform .25s ease, box-shadow .25s ease, border-color .2s ease; text-decoration:none; }
     .more-card:hover { transform:translateY(-3px); box-shadow:0 16px 32px -8px rgba(0,0,0,.10); border-color:#D4D4D8; }
@@ -115,7 +117,7 @@
     /* Reading progress bar */
     #read-progress {
       position: fixed; top: 0; left: 0; height: 3px; width: 0;
-      background: linear-gradient(90deg, #2563EB, #7C3AED);
+      background: linear-gradient(90deg, var(--brand), var(--brand-2));
       z-index: 60;
     }
 
@@ -362,10 +364,10 @@
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-zinc-200 px-4 sm:px-6 lg:px-8 py-10">
+  <footer class="site-footer overflow-hidden px-4 sm:px-6 lg:px-8 py-12">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-      <p class="font-heading font-bold text-zinc-950 text-lg tracking-tight">Nanigah Caleb</p>
-      <div class="flex items-center gap-6 text-sm text-zinc-500">
+      <p class="font-heading font-bold text-white text-lg tracking-tight">Nanigah Caleb</p>
+      <div class="flex items-center gap-6 text-sm text-zinc-400">
         <a href="index.html">Home</a>
         <a href="projects.html">Work</a>
         <a href="about.html">About</a>
@@ -374,7 +376,7 @@
         <a href="contact.html">Contact</a>
       </div>
     </div>
-    <p class="text-center text-zinc-400 text-sm mt-8">© 2026 Nanigah Caleb. All rights reserved.</p>
+    <p class="text-center text-zinc-500 text-sm mt-8">© 2026 Nanigah Caleb. All rights reserved.</p>
   </footer>
 
   <!-- Firebase SDKs -->

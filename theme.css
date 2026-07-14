@@ -1,0 +1,88 @@
+/* ═══════════════════════════════════════════════════════════════════
+   SITE THEME — the single place to edit colors.
+   Change --brand / --brand-2 below and the whole site re-themes:
+   every tint, gradient, hover shade and glow derives automatically.
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  --brand:   #3c43d2;  /* main accent */
+  --brand-2: #3810cb;  /* secondary accent (gradient end) */
+  --ink:     #09090b;  /* the black */
+  --paper:   #fafafa;  /* page background */
+
+  /* ── Derived shades (auto-computed — no need to touch) ─────────── */
+  --brand-50:  color-mix(in srgb, var(--brand) 7%, white);
+  --brand-100: color-mix(in srgb, var(--brand) 14%, white);
+  --brand-200: color-mix(in srgb, var(--brand) 26%, white);
+  --brand-300: color-mix(in srgb, var(--brand) 42%, white);
+  --brand-400: color-mix(in srgb, var(--brand) 60%, white);
+  --brand-500: color-mix(in srgb, var(--brand) 85%, white);
+  --brand-600: var(--brand);
+  --brand-700: color-mix(in srgb, var(--brand) 84%, black);
+  --brand-800: color-mix(in srgb, var(--brand) 68%, black);
+  --brand-900: color-mix(in srgb, var(--brand) 52%, black);
+  --brand-950: color-mix(in srgb, var(--brand) 38%, black);
+
+  --brand2-500: color-mix(in srgb, var(--brand-2) 85%, white);
+  --brand2-600: var(--brand-2);
+  --brand2-700: color-mix(in srgb, var(--brand-2) 84%, black);
+  --brand2-800: color-mix(in srgb, var(--brand-2) 68%, black);
+  --brand2-900: color-mix(in srgb, var(--brand-2) 52%, black);
+  --brand2-950: color-mix(in srgb, var(--brand-2) 38%, black);
+
+  /* ── Translucent accents (glows, veils, dark-surface pills) ────── */
+  --brand-glow:  color-mix(in srgb, var(--brand) 10%, transparent);
+  --brand-dim:   color-mix(in srgb, var(--brand) 28%, transparent);
+  --brand-veil:  color-mix(in srgb, var(--brand) 20%, transparent);
+  --brand2-veil: color-mix(in srgb, var(--brand-2) 40%, transparent);
+
+  /* ── The brand gradient ────────────────────────────────────────── */
+  --grad-brand: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+}
+
+/* ── Gradient helpers ─────────────────────────────────────────────── */
+.bg-grad-brand { background-image: var(--grad-brand); }
+.text-grad-brand {
+  background-image: var(--grad-brand);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ── Primary button: brand gradient + hover lift ──────────────────── */
+.btn-brand {
+  background-image: var(--grad-brand);
+  transition: filter .25s ease, box-shadow .25s ease, transform .25s ease !important;
+}
+.btn-brand:hover {
+  filter: brightness(1.15) saturate(1.05);
+  box-shadow: 0 12px 30px -10px color-mix(in srgb, var(--brand) 55%, transparent);
+  transform: translateY(-1px);
+}
+
+/* ── Site footer: dark surface with brand glows ───────────────────── */
+.site-footer {
+  position: relative;
+  background:
+    radial-gradient(620px 240px at 12% 0%,  color-mix(in srgb, var(--brand)   22%, transparent), transparent 70%),
+    radial-gradient(620px 260px at 88% 110%, color-mix(in srgb, var(--brand-2) 26%, transparent), transparent 70%),
+    var(--ink);
+}
+.site-footer::before {                 /* thin gradient hairline on top */
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--brand) 30%, var(--brand-2) 70%, transparent);
+}
+.site-footer a { transition: color .2s ease; }
+.site-footer a:hover { color: #fff; }
+
+/* ── CTA sections: soft brand glow rising from below ──────────────── */
+.cta-bg {
+  background: radial-gradient(720px 340px at 50% 112%, color-mix(in srgb, var(--brand) 12%, transparent), transparent 72%);
+}
+
+/* ── Recolor inline SVG icons that carry the old hard-coded blue ───── */
+svg[stroke="#2563EB"] { stroke: var(--brand); }
+svg[fill="#2563EB"]   { fill: var(--brand); }
